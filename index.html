@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>AVQENZA | التجارة تبدأ من هنا</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<header class="top"><a class="brand" href="#">AVQENZA<span>أفكينزا</span></a><nav><a href="#categories">الأقسام</a><a href="#listings">أحدث الإعلانات</a><a href="#how">كيف يعمل؟</a></nav><div><button class="outline" id="loginBtn">تسجيل الدخول</button><button id="addTop">＋ أضف إعلانك</button></div></header>
+<main>
+<section class="hero"><div class="heroText"><p class="eyebrow">سوقك في مكان واحد</p><h1>كل اللي بتدور عليه،<br><em>في مكان واحد.</em></h1><p>اكتشف، قارن، واتواصل مباشرة مع البائعين. تجربة أسهل للبيع والشراء في مصر.</p>
+<div class="search"><input id="searchInput" placeholder="بتدور على إيه؟ مثال: شقة، عربية، موبايل"><select id="categoryFilter"><option value="">كل الأقسام</option><option>السيارات</option><option>العقارات</option><option>موبايلات</option><option>إلكترونيات</option><option>أثاث ومنزل</option><option>ملابس وإكسسوارات</option><option>خدمات</option><option>وظائف</option></select><button id="searchBtn">ابحث</button></div></div><div class="heroArt"><div class="orb"></div><div class="glass"><span>AVQENZA MARKETPLACE</span><strong>بيع أسرع.<br>اشتري أذكى.</strong><small>منصة واحدة لكل احتياجاتك</small></div></div></section>
+<section id="categories" class="section"><div class="sectionHead"><div><small>اكتشف بسهولة</small><h2>تصفح الأقسام</h2></div><p>اختار القسم المناسب وابدأ رحلتك</p></div><div class="cats" id="cats"></div></section>
+<section id="listings" class="section listings"><div class="sectionHead"><div><small>اختيارات السوق</small><h2>أحدث الإعلانات</h2></div><button class="outline" id="refreshBtn">تحديث الإعلانات</button></div><div id="listingGrid" class="listingGrid"><div class="empty">جاري تحميل الإعلانات...</div></div></section>
+<section id="adminSection" class="section" hidden><div class="sectionHead"><div><small>إدارة المنصة</small><h2>مراجعة الإعلانات</h2></div><button class="outline" id="adminRefresh" onclick="loadPendingListings()">تحديث</button></div><div id="adminListings" class="listingGrid"></div></section>
+<section id="how" class="how"><small>ببساطة</small><h2>كيف تعمل AVQENZA؟</h2><div class="steps"><article><b>01</b><h3>ابحث واكتشف</h3><p>تصفح الأقسام وابحث عن اللي يناسبك.</p></article><article><b>02</b><h3>قارن التفاصيل</h3><p>راجع الصور والسعر ومعلومات الإعلان.</p></article><article><b>03</b><h3>تواصل مباشرة</h3><p>اتواصل مع البائع واتفقوا مباشرة.</p></article></div></section>
+</main>
+<footer><a class="brand" href="#">AVQENZA<span>أفكينزا</span></a><p>التجارة تبدأ من هنا</p><small>© 2026 AVQENZA. جميع الحقوق محفوظة.</small></footer>
+<dialog id="authDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2 id="authTitle">تسجيل الدخول</h2><input id="authEmail" type="email" placeholder="البريد الإلكتروني" required><input id="authPassword" type="password" placeholder="كلمة المرور" required><button id="authSubmit" type="button">دخول</button><p id="authSwitch">ليس لديك حساب؟ <a href="#" id="signupLink">إنشاء حساب</a></p><p id="authMsg"></p></form></dialog>
+<dialog id="adDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2>أضف إعلانك</h2><input id="adTitle" placeholder="عنوان الإعلان" required><select id="adCategory"><option>السيارات</option><option>العقارات</option><option>موبايلات</option><option>إلكترونيات</option><option>أثاث ومنزل</option><option>ملابس وإكسسوارات</option><option>خدمات</option><option>وظائف</option></select><input id="adPrice" type="number" min="0" step="0.01" placeholder="السعر بالجنيه (اكتب 0 لو السعر عند التواصل)"><input id="adPhone" type="tel" inputmode="tel" placeholder="رقم الموبايل للتواصل" required><input id="adCity" placeholder="المحافظة / المدينة" value="القاهرة"><select id="adCondition"><option value="used">مستعمل</option><option value="new">جديد</option></select><textarea id="adDescription" placeholder="وصف الإعلان"></textarea><input id="adImage" type="file" accept="image/png,image/jpeg,image/webp"><button id="adSubmit" type="button">نشر الإعلان</button><p id="adMsg"></p></form></dialog>
+<div id="toast" role="status"></div>
+<script src="app.js"></script>
+</body></html>
