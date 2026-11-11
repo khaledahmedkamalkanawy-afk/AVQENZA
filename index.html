@@ -15,7 +15,14 @@
 <div class="search"><input id="searchInput" placeholder="بتدور على إيه؟ مثال: شقة، عربية، موبايل"><select id="categoryFilter"><option value="">كل الأقسام</option><option>السيارات</option><option>العقارات</option><option>موبايلات</option><option>إلكترونيات</option><option>أثاث ومنزل</option><option>ملابس وإكسسوارات</option><option>خدمات</option><option>وظائف</option></select><button id="searchBtn">ابحث</button></div></div><div class="heroArt"><div class="orb"></div><div class="glass"><span>AVQENZA MARKETPLACE</span><strong>بيع أسرع.<br>اشتري أذكى.</strong><small>منصة واحدة لكل احتياجاتك</small></div></div></section>
 <section id="categories" class="section"><div class="sectionHead"><div><small>اكتشف بسهولة</small><h2>تصفح الأقسام</h2></div><p>اختار القسم المناسب وابدأ رحلتك</p></div><div class="cats" id="cats"></div></section>
 <section id="listings" class="section listings"><div class="sectionHead"><div><small>اختيارات السوق</small><h2>أحدث الإعلانات</h2></div><button class="outline" id="refreshBtn">تحديث الإعلانات</button></div><div id="listingGrid" class="listingGrid"><div class="empty">جاري تحميل الإعلانات...</div></div></section>
-<section id="adminSection" class="section" hidden><div class="sectionHead"><div><small>إدارة المنصة</small><h2>مراجعة الإعلانات</h2></div><button class="outline" id="adminRefresh" onclick="loadPendingListings()">تحديث</button></div><div id="adminListings" class="listingGrid"></div></section>
+<section id="myListingsSection" class="section" hidden>
+<div class="sectionHead">
+<div><small>حسابك</small><h2>إعلاناتي</h2></div>
+<button class="outline" id="myListingsRefresh">تحديث</button>
+</div>
+<div id="myListings" class="listingGrid"></div>
+</section>
+  <section id="adminSection" class="section" hidden><div class="sectionHead"><div><small>إدارة المنصة</small><h2>مراجعة الإعلانات</h2></div><button class="outline" id="adminRefresh" onclick="loadPendingListings()">تحديث</button></div><div id="adminListings" class="listingGrid"></div></section>
 <section id="how" class="how"><small>ببساطة</small><h2>كيف تعمل AVQENZA؟</h2><div class="steps"><article><b>01</b><h3>ابحث واكتشف</h3><p>تصفح الأقسام وابحث عن اللي يناسبك.</p></article><article><b>02</b><h3>قارن التفاصيل</h3><p>راجع الصور والسعر ومعلومات الإعلان.</p></article><article><b>03</b><h3>تواصل مباشرة</h3><p>اتواصل مع البائع واتفقوا مباشرة.</p></article></div></section>
 </main>
 <footer><a class="brand" href="#">AVQENZA<span>أفكينزا</span></a><p>التجارة تبدأ من هنا</p><small>© 2026 AVQENZA. جميع الحقوق محفوظة.</small></footer>
