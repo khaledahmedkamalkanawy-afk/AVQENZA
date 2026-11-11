@@ -21,6 +21,19 @@ function escapeHtml(s){
 }
 
 /* نافذة تفاصيل الإعلان */
+function openImageViewer(src,title='صورة الإعلان'){
+  if(!src)return;
+  let viewer=$('imageViewerDialog');
+  if(!viewer){
+    viewer=document.createElement('dialog');
+    viewer.id='imageViewerDialog';
+    viewer.style.cssText='width:96%;max-width:1000px;max-height:94vh;border:0;border-radius:14px;padding:12px;background:#111;color:#fff';
+    document.body.appendChild(viewer);
+  }
+  viewer.innerHTML=`<button id="closeImageViewer" style="float:left;padding:8px 13px">✕</button><p style="text-align:center">${escapeHtml(title)}</p><img src="${escapeHtml(src)}" style="display:block;width:100%;max-height:78vh;object-fit:contain">`;
+  $('closeImageViewer').onclick=()=>viewer.close();
+  if(!viewer.open)viewer.showModal();
+}
 function showListingDetails(x){
   let dialog=$('listingDetailsDialog');
   if(!dialog){
@@ -50,6 +63,7 @@ function showListingDetails(x){
     ${contact}
   `;
   $('closeListingDetails').onclick=()=>dialog.close();
+  dialog.querySelector('img')?.addEventListener('click',()=>openImageViewer(x.image_url,x.title));
   if(!dialog.open)dialog.showModal();
 }
 
@@ -135,6 +149,8 @@ async function loadListings(){
         ${phone?`<p><a href="tel:${escapeHtml(phone)}">اتصال بالبائع</a> · <a target="_blank" rel="noopener" href="https://wa.me/${escapeHtml(wa)}">واتساب</a></p>`:''}
       </div>`;
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+    card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
+if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
 }
