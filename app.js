@@ -558,10 +558,10 @@ async function checkAdmin(){
   }else{
     $('adminSection')?.setAttribute('hidden','');
   }
-}
+
 
 $('adminRefresh').onclick=loadAdminDashboard;
-         }$('authSubmit').onclick=async()=>{
+         $('authSubmit').onclick=async()=>{
   if(!supabaseClient)return;
   const email=$('authEmail').value.trim(),password=$('authPassword').value;
   if(!email||!password){$('authMsg').textContent='اكتب البريد الإلكتروني وكلمة المرور.';return}
