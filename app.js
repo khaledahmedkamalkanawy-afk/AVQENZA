@@ -239,16 +239,58 @@ async function editMyListing(x){
     return;
   }
 
+  const {data:{user},error:ue}=await supabaseClient.auth.getUser();
+  if(ue||!user){toast('سجل الدخول أولًا.');return}
+
+  const fileInput=document.createElement('input');
+  fileInput.type='file';
+  fileInput.accept='image/jpeg,image/png,image/webp';
+
+  const file=await new Promise(resolve=>{
+    fileInput.onchange=()=>resolve(fileInput.files?.[0]||null);
+    fileInput.addEventListener('cancel',()=>resolve(null),{once:true});
+    fileInput.click();
+  });
+
+  let imageUrl=x.image_url;
+
+  if(file){
+    if(file.size>5*1024*1024){
+      toast('حجم الصورة يجب ألا يتجاوز 5 ميجابايت.');
+      return;
+    }
+
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
+      toast('اختر صورة JPG أو PNG أو WebP.');
+      return;
+    }
+
+    const path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+    const up=await supabaseClient.storage.from('listing-images').upload(path,file);
+
+    if(up.error){
+      toast('تعذر رفع الصورة: '+up.error.message);
+      return;
+    }
+
+    imageUrl=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+  }
+
   const {error}=await supabaseClient.from('listings').update({
     title:title.trim(),
     description:description.trim(),
     price:Number(price),
     phone:phone.trim(),
     city:city.trim(),
+    image_url:imageUrl,
     status:'pending'
-  }).eq('id',x.id).eq('seller_id',currentSession.user.id);
+  }).eq('id',x.id).eq('seller_id',user.id);
 
-  if(error){toast('تعذر تعديل الإعلان: '+error.message);return}
+  if(error){
+    toast('تعذر تعديل الإعلان: '+error.message);
+    return;
+  }
+
   toast('تم التعديل، والإعلان بانتظار المراجعة.');
   await loadMyListings();
   await loadListings();
