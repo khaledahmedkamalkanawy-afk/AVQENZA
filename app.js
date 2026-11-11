@@ -71,7 +71,9 @@ function updateAuthUI(session){
     b.onclick=()=>$('authDialog').showModal();
     isAdmin=false;
     $('adminSection')?.setAttribute('hidden','');
-  }async function init(){
+  }
+}
+async function init(){
   const u=window.AVQENZA_SUPABASE_URL,k=window.AVQENZA_SUPABASE_ANON_KEY;
   if(!window.supabase||!u||!k){
     $('listingGrid').innerHTML='<div class="empty">إعدادات الاتصال بقاعدة البيانات غير مكتملة.</div>';
@@ -136,7 +138,7 @@ async function loadListings(){
     grid.appendChild(card);
   });
 }
-}async function loadPendingListings(){
+async function loadPendingListings(){
   if(!isAdmin)return;
   const box=$('adminListings');
   box.innerHTML='<div class="empty">جاري تحميل الإعلانات المعلقة...</div>';
