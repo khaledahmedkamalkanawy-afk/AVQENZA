@@ -271,7 +271,7 @@ async function loadMyListings(){
   await loadMyListings();
   await loadListings();
 };
-    };
+    
     el.querySelector('.deleteMyAd').onclick=()=>deleteMyListing(x.id);
     box.appendChild(el);
   });
