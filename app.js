@@ -563,7 +563,7 @@ async function checkAdmin(){
 $('adminRefresh').onclick=loadAdminDashboard;
          $('authSubmit').onclick=async()=>{
   if(!supabaseClient)return;
-  const email=$('authEmail').value.trim(),password=$('authPassword').value;
+  const email=$('authEmail').value.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g,'').trim().toLowerCase(),password=$('authPassword').value;
   if(!email||!password){$('authMsg').textContent='اكتب البريد الإلكتروني وكلمة المرور.';return}
   const btn=$('authSubmit');
   btn.disabled=true;
