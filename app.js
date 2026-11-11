@@ -558,7 +558,7 @@ async function checkAdmin(){
   }else{
     $('adminSection')?.setAttribute('hidden','');
   }
-
+}
 
 $('adminRefresh').onclick=loadAdminDashboard;
          $('authSubmit').onclick=async()=>{
