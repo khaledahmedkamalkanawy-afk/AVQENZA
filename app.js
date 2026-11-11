@@ -180,6 +180,109 @@ async function loadPendingListings(){
     box.appendChild(el);
   });
 }
+// قسم إعلاناتي
+async function loadMyListings(){
+  const box=$('myListings');
+  if(!supabaseClient||!currentSession?.user)return;
+  box.innerHTML='<div class="empty">جاري تحميل إعلاناتك...</div>';
+
+  const {data,error}=await supabaseClient.from('listings')
+    .select('id,title,description,price,city,phone,category,image_url,status')
+    .eq('seller_id',currentSession.user.id)
+    .order('created_at',{ascending:false});
+
+  if(error){
+    box.innerHTML='<div class="empty">تعذر تحميل إعلاناتك: '+escapeHtml(error.message)+'</div>';
+    return;
+  }
+
+  box.innerHTML='';
+  if(!data?.length){
+    box.innerHTML='<div class="empty">ليس لديك إعلانات حتى الآن.</div>';
+    return;
+  }
+
+  data.forEach(x=>{
+    const el=document.createElement('article');
+    el.className='item';
+    el.innerHTML=`
+      ${x.image_url?`<img src="${escapeHtml(x.image_url)}" alt="${escapeHtml(x.title)}">`:''}
+      <div class="itemBody">
+        <h3>${escapeHtml(x.title)}</h3>
+        <p>${escapeHtml(x.description||'')}</p>
+        <small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small>
+        <p>الحالة: ${escapeHtml(x.status)}</p>
+        <button class="editMyAd">تعديل الإعلان</button>
+        <button class="deleteMyAd outline">حذف الإعلان</button>
+      </div>`;
+
+    el.querySelector('.editMyAd').onclick=()=>editMyListing(x);
+    el.querySelector('.deleteMyAd').onclick=()=>deleteMyListing(x.id);
+    box.appendChild(el);
+  });
+}
+
+async function editMyListing(x){
+  const title=prompt('عنوان الإعلان:',x.title);
+  if(title===null)return;
+  const description=prompt('وصف الإعلان:',x.description||'');
+  if(description===null)return;
+  const price=prompt('السعر:',x.price||0);
+  if(price===null)return;
+  const phone=prompt('رقم الهاتف:',x.phone||'');
+  if(phone===null)return;
+  const city=prompt('المدينة:',x.city||'');
+  if(city===null)return;
+
+  if(title.trim().length<4||!description.trim()||!Number.isFinite(Number(price))||Number(price)<0){
+    toast('راجع البيانات وحاول مرة أخرى.');
+    return;
+  }
+
+  const {error}=await supabaseClient.from('listings').update({
+    title:title.trim(),
+    description:description.trim(),
+    price:Number(price),
+    phone:phone.trim(),
+    city:city.trim(),
+    status:'pending'
+  }).eq('id',x.id).eq('seller_id',currentSession.user.id);
+
+  if(error){toast('تعذر تعديل الإعلان: '+error.message);return}
+  toast('تم التعديل، والإعلان بانتظار المراجعة.');
+  await loadMyListings();
+  await loadListings();
+}
+
+async function deleteMyListing(id){
+  if(!confirm('هل أنت متأكد من حذف الإعلان؟'))return;
+
+  const {error}=await supabaseClient.from('listings')
+    .delete().eq('id',id).eq('seller_id',currentSession.user.id);
+
+  if(error){toast('تعذر حذف الإعلان: '+error.message);return}
+  toast('تم حذف الإعلان.');
+  await loadMyListings();
+  await loadListings();
+}
+
+const myBtn=document.createElement('button');
+myBtn.className='outline';
+myBtn.textContent='إعلاناتي';
+$('loginBtn').parentElement.insertBefore(myBtn,$('addTop'));
+
+myBtn.onclick=async()=>{
+  if(!currentSession?.user){
+    $('authDialog').showModal();
+    return;
+  }
+  const section=$('myListingsSection');
+  section.removeAttribute('hidden');
+  section.scrollIntoView({behavior:'smooth'});
+  await loadMyListings();
+};
+
+$('myListingsRefresh').onclick=loadMyListings;
 
 async function moderateListing(id,status){
   if(!isAdmin)return toast('ليس لديك صلاحية الإدارة.');
