@@ -63,7 +63,12 @@ function showListingDetails(x){
     ${contact}
   `;
   $('closeListingDetails').onclick=()=>dialog.close();
-  dialog.querySelector('img')?.addEventListener('click',()=>openImageViewer(x.image_url,x.title));
+  dialog.querySelectorAll('img[data-image-index]').forEach(img=>{
+  img.addEventListener('click',()=>{
+    const index=Number(img.dataset.imageIndex);
+    openImageViewer(images[index],x.title);
+  });
+});
   if(!dialog.open)dialog.showModal();
 }
 
