@@ -29,5 +29,8 @@
 <dialog id="authDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2 id="authTitle">تسجيل الدخول</h2><input id="authEmail" type="email" placeholder="البريد الإلكتروني" required><input id="authPassword" type="password" placeholder="كلمة المرور" required><button id="authSubmit" type="button">دخول</button><p id="authSwitch">ليس لديك حساب؟ <a href="#" id="signupLink">إنشاء حساب</a></p><p id="authMsg"></p></form></dialog>
 <dialog id="adDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2>أضف إعلانك</h2><input id="adTitle" placeholder="عنوان الإعلان" required><select id="adCategory"><option>السيارات</option><option>العقارات</option><option>موبايلات</option><option>إلكترونيات</option><option>أثاث ومنزل</option><option>ملابس وإكسسوارات</option><option>خدمات</option><option>وظائف</option></select><input id="adPrice" type="number" min="0" step="0.01" placeholder="السعر بالجنيه (اكتب 0 لو السعر عند التواصل)"><input id="adPhone" type="tel" inputmode="tel" placeholder="رقم الموبايل للتواصل" required><input id="adCity" placeholder="المحافظة / المدينة" value="القاهرة"><select id="adCondition"><option value="used">مستعمل</option><option value="new">جديد</option></select><textarea id="adDescription" placeholder="وصف الإعلان"></textarea><input id="adImage" type="file" accept="image/png,image/jpeg,image/webp"><button id="adSubmit" type="button">نشر الإعلان</button><p id="adMsg"></p></form></dialog>
 <div id="toast" role="status"></div>
-<script src="app.js"></script>
+<footer style="text-align:center;padding:25px;background:#f5f5f5">
+  <a href="privacy.html">سياسة الخصوصية</a>
+</footer>
+  <script src="app.js"></script>
 </body></html>
