@@ -46,9 +46,10 @@ function showListingDetails(x){
   const phone=String(x.phone||'').replace(/[^0-9+]/g,'');
   const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
   const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-  const image=x.image_url
-    ? `<img src="${escapeHtml(x.image_url)}" alt="${escapeHtml(x.title)}" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;background:#f1f3f6">`
-    : '';
+  const images=x.image_urls?.length ? x.image_urls : (x.image_url ? [x.image_url] : []);
+const image=images.map((url,i)=>`
+  <img src="${escapeHtml(url)}" alt="${escapeHtml(x.title)}" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;background:#f1f3f6;margin-bottom:8px;cursor:zoom-in" data-image-index="${i}">
+`).join('');
   const contact=phone
     ? `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><a href="tel:${escapeHtml(phone)}" style="display:inline-block;padding:12px 20px;background:#1769aa;color:white;text-decoration:none;border-radius:9px">اتصال بالبائع</a><a href="https://wa.me/${escapeHtml(wa)}" target="_blank" rel="noopener" style="display:inline-block;padding:12px 20px;background:#16834a;color:white;text-decoration:none;border-radius:9px">واتساب</a></div>`
     : '<p>لا يوجد رقم تواصل معلن.</p>';
@@ -115,7 +116,7 @@ async function loadListings(){
   if(!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
   let q=supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,status,created_at')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,status,created_at')
     .eq('status','approved')
     .order('created_at',{ascending:false})
     .limit(40);
@@ -192,7 +193,7 @@ async function loadMyListings(){
   box.innerHTML='<div class="empty">جاري تحميل إعلاناتك...</div>';
 
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,status')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,status')
     .eq('seller_id',currentSession.user.id)
     .order('created_at',{ascending:false});
 
