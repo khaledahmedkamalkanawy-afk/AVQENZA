@@ -214,7 +214,7 @@ async function loadMyListings(){
         <p>الحالة: ${escapeHtml(x.status)}</p>
         <button class="editMyAd">تعديل الإعلان</button>
         <button class="deleteMyAd outline">حذف الإعلان</button>
-        <input class="changeMyAdImage" type="file" accept="image/jpeg,image/png,image/webp">
+        <input class="changeMyAdImage" type="file" accept="image/jpeg,image/png,image/webp" multiple>
       </div>`;
 
     el.querySelector('.editMyAd').onclick=()=>editMyListing(x);
