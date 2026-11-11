@@ -246,10 +246,16 @@ async function editMyListing(x){
   fileInput.type='file';
   fileInput.accept='image/jpeg,image/png,image/webp';
 
+    fileInput.style.display='block';
+  fileInput.style.margin='15px auto';
+  document.body.appendChild(fileInput);
+
   const file=await new Promise(resolve=>{
-    fileInput.onchange=()=>resolve(fileInput.files?.[0]||null);
-    fileInput.addEventListener('cancel',()=>resolve(null),{once:true});
-    fileInput.click();
+    fileInput.onchange=()=>{
+      const selected=fileInput.files?.[0]||null;
+      fileInput.remove();
+      resolve(selected);
+    };
   });
 
   let imageUrl=x.image_url;
