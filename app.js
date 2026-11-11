@@ -214,9 +214,49 @@ async function loadMyListings(){
         <p>الحالة: ${escapeHtml(x.status)}</p>
         <button class="editMyAd">تعديل الإعلان</button>
         <button class="deleteMyAd outline">حذف الإعلان</button>
+        <input class="changeMyAdImage" type="file" accept="image/jpeg,image/png,image/webp">
       </div>`;
 
     el.querySelector('.editMyAd').onclick=()=>editMyListing(x);
+        el.querySelector('.changeMyAdImage').onchange=async(e)=>{
+      const file=e.target.files?.[0];
+      if(!file)return;
+
+      if(file.size>5*1024*1024){
+        toast('حجم الصورة يجب ألا يتجاوز 5 ميجابايت.');
+        return;
+      }
+
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
+        toast('اختر صورة JPG أو PNG أو WebP.');
+        return;
+      }
+
+      const user=currentSession.user;
+      const path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+
+      const up=await supabaseClient.storage.from('listing-images').upload(path,file);
+      if(up.error){
+        toast('تعذر رفع الصورة: '+up.error.message);
+        return;
+      }
+
+      const url=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+
+      const {error}=await supabaseClient.from('listings').update({
+        image_url:url,
+        status:'pending'
+      }).eq('id',x.id).eq('seller_id',user.id);
+
+      if(error){
+        toast('تعذر تغيير الصورة: '+error.message);
+        return;
+      }
+
+      toast('تم تغيير الصورة، والإعلان بانتظار المراجعة.');
+      await loadMyListings();
+      await loadListings();
+    };
     el.querySelector('.deleteMyAd').onclick=()=>deleteMyListing(x.id);
     box.appendChild(el);
   });
