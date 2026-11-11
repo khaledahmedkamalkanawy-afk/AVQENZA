@@ -418,18 +418,149 @@ $('authSwitch').addEventListener('click',e=>{
   $('authSwitch').innerHTML=signUpMode?'لديك حساب؟ <a href="#" id="signupLink">تسجيل الدخول</a>':'ليس لديك حساب؟ <a href="#" id="signupLink">إنشاء حساب</a>';
 });
 
+async function loadAdminDashboard(){
+  if(!isAdmin)return;
+
+  const stats=$('adminStats');
+  stats.innerHTML='<div class="empty">جاري تحميل الإحصائيات...</div>';
+
+  const [users,all,approved,pending,rejected,reports]=await Promise.all([
+    supabaseClient.from('profiles').select('*',{count:'exact',head:true}),
+    supabaseClient.from('listings').select('*',{count:'exact',head:true}),
+    supabaseClient.from('listings').select('*',{count:'exact',head:true}).eq('status','approved'),
+    supabaseClient.from('listings').select('*',{count:'exact',head:true}).eq('status','pending'),
+    supabaseClient.from('listings').select('*',{count:'exact',head:true}).eq('status','rejected'),
+    supabaseClient.from('reports').select('*',{count:'exact',head:true})
+  ]);
+
+  const results=[users,all,approved,pending,rejected,reports];
+  const error=results.find(r=>r.error);
+  if(error){
+    stats.innerHTML='<div class="empty">تعذر تحميل الإحصائيات: '+escapeHtml(error.error.message)+'</div>';
+    return;
+  }
+
+  const cards=[
+    ['المستخدمون',users.count],
+    ['كل الإعلانات',all.count],
+    ['المنشورة',approved.count],
+    ['بانتظار المراجعة',pending.count],
+    ['المرفوضة',rejected.count],
+    ['البلاغات',reports.count]
+  ];
+
+  stats.innerHTML=cards.map(([name,count])=>
+    `<div class="adminStat"><strong>${count??0}</strong><span>${name}</span></div>`
+  ).join('');
+
+  await Promise.all([
+    loadAdminAllListings(),
+    loadAdminReports(),
+    loadPendingListings()
+  ]);
+}
+
+async function loadAdminAllListings(){
+  const box=$('adminAllListings');
+  box.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
+
+  const {data,error}=await supabaseClient.from('listings')
+    .select('id,title,price,city,category,status,created_at')
+    .order('created_at',{ascending:false})
+    .limit(100);
+
+  if(error){
+    box.innerHTML='<div class="empty">تعذر تحميل الإعلانات: '+escapeHtml(error.message)+'</div>';
+    return;
+  }
+
+  box.innerHTML='';
+  if(!data?.length){
+    box.innerHTML='<div class="empty">لا توجد إعلانات.</div>';
+    return;
+  }
+
+  data.forEach(x=>{
+    const el=document.createElement('article');
+    el.className='item';
+    const statusNames={
+      pending:'بانتظار المراجعة',
+      approved:'منشور',
+      rejected:'مرفوض',
+      sold:'تم البيع'
+    };
+
+    el.innerHTML=`
+      <div class="itemBody">
+        <h3>${escapeHtml(x.title)}</h3>
+        <p>${Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل'}</p>
+        <small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small>
+        <p>الحالة: ${statusNames[x.status]||escapeHtml(x.status)}</p>
+        ${x.status==='pending'?`
+          <button data-action="approved">اعتماد الإعلان</button>
+          <button class="outline" data-action="rejected">رفض الإعلان</button>
+        `:''}
+      </div>`;
+
+    el.querySelectorAll('button[data-action]').forEach(btn=>{
+      btn.onclick=()=>moderateListing(x.id,btn.dataset.action);
+    });
+    box.appendChild(el);
+  });
+}
+
+async function loadAdminReports(){
+  const box=$('adminReports');
+  box.innerHTML='<div class="empty">جاري تحميل البلاغات...</div>';
+
+  const {data,error}=await supabaseClient.from('reports')
+    .select('id,reason,created_at,listing_id,listings(title)')
+    .order('created_at',{ascending:false})
+    .limit(100);
+
+  if(error){
+    box.innerHTML='<div class="empty">تعذر تحميل البلاغات: '+escapeHtml(error.message)+'</div>';
+    return;
+  }
+
+  box.innerHTML='';
+  if(!data?.length){
+    box.innerHTML='<div class="empty">لا توجد بلاغات حاليًا.</div>';
+    return;
+  }
+
+  data.forEach(x=>{
+    const el=document.createElement('article');
+    el.className='item';
+    el.innerHTML=`
+      <div class="itemBody">
+        <h3>بلاغ على: ${escapeHtml(x.listings?.title||'إعلان غير متاح')}</h3>
+        <p>${escapeHtml(x.reason)}</p>
+        <small>${new Date(x.created_at).toLocaleString('ar-EG')}</small>
+      </div>`;
+    box.appendChild(el);
+  });
+}
+
 async function checkAdmin(){
   if(!currentSession?.user){
     isAdmin=false;
     $('adminSection')?.setAttribute('hidden','');
     return;
   }
+
   const {data,error}=await supabaseClient.rpc('is_admin');
   isAdmin=!error&&data===true;
+
   if(isAdmin){
     $('adminSection')?.removeAttribute('hidden');
-    await loadPendingListings();
-  }else $('adminSection')?.setAttribute('hidden','');
+    await loadAdminDashboard();
+  }else{
+    $('adminSection')?.setAttribute('hidden','');
+  }
+}
+
+$('adminRefresh').onclick=loadAdminDashboard;
          }$('authSubmit').onclick=async()=>{
   if(!supabaseClient)return;
   const email=$('authEmail').value.trim(),password=$('authPassword').value;
