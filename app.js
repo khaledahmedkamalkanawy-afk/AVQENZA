@@ -224,43 +224,53 @@ async function loadMyListings(){
 
     el.querySelector('.editMyAd').onclick=()=>editMyListing(x);
         el.querySelector('.changeMyAdImage').onchange=async(e)=>{
-      const file=e.target.files?.[0];
-      if(!file)return;
+  const files=Array.from(e.target.files||[]);
+  if(!files.length)return;
 
-      if(file.size>5*1024*1024){
-        toast('حجم الصورة يجب ألا يتجاوز 5 ميجابايت.');
-        return;
-      }
+  if(files.some(file=>file.size>5*1024*1024)){
+    toast('حجم كل صورة يجب ألا يتجاوز 5 ميجابايت.');
+    return;
+  }
 
-      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
-        toast('اختر صورة JPG أو PNG أو WebP.');
-        return;
-      }
+  if(files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type))){
+    toast('اختر صور JPG أو PNG أو WebP فقط.');
+    return;
+  }
 
-      const user=currentSession.user;
-      const path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  const user=currentSession.user;
+  const urls=Array.isArray(x.image_urls)&&x.image_urls.length
+    ? [...x.image_urls]
+    : (x.image_url?[x.image_url]:[]);
 
-      const up=await supabaseClient.storage.from('listing-images').upload(path,file);
-      if(up.error){
-        toast('تعذر رفع الصورة: '+up.error.message);
-        return;
-      }
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    const path=`${user.id}/${Date.now()}-${i}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
 
-      const url=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+    const up=await supabaseClient.storage.from('listing-images').upload(path,file);
+    if(up.error){
+      toast('تعذر رفع الصورة: '+up.error.message);
+      return;
+    }
 
-      const {error}=await supabaseClient.from('listings').update({
-        image_url:url,
-        status:'pending'
-      }).eq('id',x.id).eq('seller_id',user.id);
+    const url=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+    urls.push(url);
+  }
 
-      if(error){
-        toast('تعذر تغيير الصورة: '+error.message);
-        return;
-      }
+  const {error}=await supabaseClient.from('listings').update({
+    image_url:urls[0]||null,
+    image_urls:urls,
+    status:'pending'
+  }).eq('id',x.id).eq('seller_id',user.id);
 
-      toast('تم تغيير الصورة، والإعلان بانتظار المراجعة.');
-      await loadMyListings();
-      await loadListings();
+  if(error){
+    toast('تعذر حفظ الصور: '+error.message);
+    return;
+  }
+
+  toast('تم إضافة الصور، والإعلان بانتظار المراجعة.');
+  await loadMyListings();
+  await loadListings();
+};
     };
     el.querySelector('.deleteMyAd').onclick=()=>deleteMyListing(x.id);
     box.appendChild(el);
