@@ -53,7 +53,33 @@
 <footer><a class="brand" href="#">AVQENZA<span>أفكينزا</span></a><p>التجارة تبدأ من هنا</p><small>© 2026 AVQENZA. جميع الحقوق محفوظة.</small></footer>
 <dialog id="authDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2 id="authTitle">تسجيل الدخول</h2><input id="authEmail" type="email" placeholder="البريد الإلكتروني" required><input id="authPassword" type="password" placeholder="كلمة المرور" required><button id="authSubmit" type="button">دخول</button><p id="authSwitch">ليس لديك حساب؟ <a href="#" id="signupLink">إنشاء حساب</a></p><p id="authMsg"></p></form></dialog>
 <dialog id="adDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2>أضف إعلانك</h2><input id="adTitle" placeholder="عنوان الإعلان" required><select id="adCategory"><option>السيارات</option><option>العقارات</option><option>موبايلات</option><option>إلكترونيات</option><option>أثاث ومنزل</option><option>ملابس وإكسسوارات</option><option>خدمات</option><option>وظائف</option></select><input id="adPrice" type="number" min="0" step="0.01" placeholder="السعر بالجنيه (اكتب 0 لو السعر عند التواصل)"><input id="adPhone" type="tel" inputmode="tel" placeholder="رقم الموبايل للتواصل" required><input id="adCity" placeholder="المحافظة / المدينة" value="القاهرة"><select id="adCondition"><option value="used">مستعمل</option><option value="new">جديد</option></select><textarea id="adDescription" placeholder="وصف الإعلان"></textarea><input id="adImage" type="file" accept="image/png,image/jpeg,image/webp"><button id="adSubmit" type="button">نشر الإعلان</button><p id="adMsg"></p></form></dialog>
-<div id="toast" role="status"></div>
+<dialog id="editAdDialog">
+  <form id="editAdForm">
+    <h3>تعديل الإعلان</h3>
+
+    <label>عنوان الإعلان</label>
+    <input name="title" required>
+
+    <label>الوصف</label>
+    <textarea name="description" required></textarea>
+
+    <label>السعر</label>
+    <input name="price" type="number" min="0">
+
+    <label>رقم الهاتف</label>
+    <input name="phone">
+
+    <label>المدينة</label>
+    <input name="city">
+
+    <label>صورة جديدة (اختياري)</label>
+    <input name="image" type="file" accept="image/*">
+
+    <button type="submit">حفظ التعديلات</button>
+    <button type="button" onclick="document.getElementById('editAdDialog').close()">إلغاء</button>
+  </form>
+</dialog>
+  <div id="toast" role="status"></div>
 <footer style="text-align:center;padding:25px;background:#f5f5f5">
   <a href="privacy.html">سياسة الخصوصية</a>
 &nbsp; | &nbsp;
