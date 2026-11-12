@@ -279,83 +279,88 @@ async function loadMyListings(){
 }
 
 async function editMyListing(x){
-  const title=prompt('عنوان الإعلان:',x.title);
-  if(title===null)return;
-  const description=prompt('وصف الإعلان:',x.description||'');
-  if(description===null)return;
-  const price=prompt('السعر:',x.price||0);
-  if(price===null)return;
-  const phone=prompt('رقم الهاتف:',x.phone||'');
-  if(phone===null)return;
-  const city=prompt('المدينة:',x.city||'');
-  if(city===null)return;
+  const dialog=$('editAdDialog');
+  const form=$('editAdForm');
 
-  if(title.trim().length<4||!description.trim()||!Number.isFinite(Number(price))||Number(price)<0){
-    toast('راجع البيانات وحاول مرة أخرى.');
+  if(!dialog||!form){
+    toast('تعذر فتح نموذج التعديل.');
     return;
   }
 
-  const {data:{user},error:ue}=await supabaseClient.auth.getUser();
-  if(ue||!user){toast('سجل الدخول أولًا.');return}
+  form.elements.title.value=x.title||'';
+  form.elements.description.value=x.description||'';
+  form.elements.price.value=x.price||0;
+  form.elements.phone.value=x.phone||'';
+  form.elements.city.value=x.city||'';
+  form.elements.image.value='';
 
-  const fileInput=document.createElement('input');
-  fileInput.type='file';
-  fileInput.accept='image/jpeg,image/png,image/webp';
+  dialog.showModal();
 
-    fileInput.style.display='block';
-  fileInput.style.margin='15px auto';
-  document.body.appendChild(fileInput);
+  form.onsubmit=async(e)=>{
+    e.preventDefault();
 
-  const file=await new Promise(resolve=>{
-    fileInput.onchange=()=>{
-      const selected=fileInput.files?.[0]||null;
-      fileInput.remove();
-      resolve(selected);
-    };
-  });
+    const title=form.elements.title.value.trim();
+    const description=form.elements.description.value.trim();
+    const price=Number(form.elements.price.value);
+    const phone=form.elements.phone.value.trim();
+    const city=form.elements.city.value.trim();
+    const file=form.elements.image.files?.[0]||null;
 
-  let imageUrl=x.image_url;
-
-  if(file){
-    if(file.size>5*1024*1024){
-      toast('حجم الصورة يجب ألا يتجاوز 5 ميجابايت.');
+    if(title.length<4||!description||!Number.isFinite(price)||price<0){
+      toast('راجع البيانات وحاول مرة أخرى.');
       return;
     }
 
-    if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
-      toast('اختر صورة JPG أو PNG أو WebP.');
+    const {data:{user},error:ue}=await supabaseClient.auth.getUser();
+    if(ue||!user){
+      toast('سجل الدخول أولًا.');
       return;
     }
 
-    const path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-    const up=await supabaseClient.storage.from('listing-images').upload(path,file);
+    let imageUrl=x.image_url;
 
-    if(up.error){
-      toast('تعذر رفع الصورة: '+up.error.message);
+    if(file){
+      if(file.size>5*1024*1024){
+        toast('حجم الصورة يجب ألا يتجاوز 5 ميجابايت.');
+        return;
+      }
+
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
+        toast('اختر صورة JPG أو PNG أو WebP.');
+        return;
+      }
+
+      const path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+      const up=await supabaseClient.storage.from('listing-images').upload(path,file);
+
+      if(up.error){
+        toast('تعذر رفع الصورة: '+up.error.message);
+        return;
+      }
+
+      imageUrl=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+    }
+
+    const {error}=await supabaseClient.from('listings').update({
+      title,
+      description,
+      price,
+      phone,
+      city,
+      image_url:imageUrl,
+      status:'pending'
+    }).eq('id',x.id).eq('seller_id',user.id);
+
+    if(error){
+      toast('تعذر تعديل الإعلان: '+error.message);
       return;
     }
 
-    imageUrl=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
-  }
-
-  const {error}=await supabaseClient.from('listings').update({
-    title:title.trim(),
-    description:description.trim(),
-    price:Number(price),
-    phone:phone.trim(),
-    city:city.trim(),
-    image_url:imageUrl,
-    status:'pending'
-  }).eq('id',x.id).eq('seller_id',user.id);
-
-  if(error){
-    toast('تعذر تعديل الإعلان: '+error.message);
-    return;
-  }
-
-  toast('تم التعديل، والإعلان بانتظار المراجعة.');
-  await loadMyListings();
-  await loadListings();
+    dialog.close();
+    toast('تم التعديل، والإعلان بانتظار المراجعة.');
+    await loadMyListings();
+    await loadListings();
+  };
 }
 
 async function deleteMyListing(id){
