@@ -220,3 +220,62 @@
     text-align:right;
   }
 }
+
+/* AVQENZA - Premium Categories */
+
+#categories{
+  background:#101827;
+  padding-top:75px;
+  padding-bottom:75px;
+}
+
+#categories .sectionHead h2{
+  color:#fff;
+  font-size:32px;
+}
+
+#categories .sectionHead p{
+  color:#9eacc0;
+}
+
+.cats{
+  gap:16px;
+}
+
+.cat{
+  position:relative;
+  background:linear-gradient(145deg,#192b40,#111d2e);
+  border:1px solid #43d6c525;
+  border-radius:16px;
+  padding:25px 12px;
+  transition:all .25s ease;
+}
+
+.cat:hover{
+  border-color:#43d6c5;
+  background:linear-gradient(145deg,#1d3b4a,#14283a);
+  transform:translateY(-6px);
+  box-shadow:0 12px 30px #43d6c51c;
+}
+
+.cat b{
+  color:#43d6c5;
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.cat span{
+  color:#f1f5f9;
+  font-weight:700;
+}
+
+@media(max-width:480px){
+  .cats{
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+
+  .cat{
+    padding:22px 10px;
+  }
+}
