@@ -694,3 +694,38 @@ body{
 .itemBody a{
   color:#e2c56d;
 }
+/* AVQENZA - Luxury Categories */
+
+#categories{
+  background:#141414;
+}
+
+#categories .sectionHead h2{
+  color:#d4af37;
+}
+
+#categories .sectionHead p{
+  color:#b0b0b0;
+}
+
+.cat{
+  background:linear-gradient(145deg,#242119,#151515);
+  border:1px solid #d4af3744;
+  border-radius:16px;
+  transition:.3s ease;
+}
+
+.cat b{
+  color:#d4af37;
+}
+
+.cat span{
+  color:#f5f5f5;
+}
+
+.cat:hover{
+  background:linear-gradient(145deg,#332a16,#1b1914);
+  border-color:#d4af37;
+  box-shadow:0 10px 25px #d4af3720;
+  transform:translateY(-5px);
+}
