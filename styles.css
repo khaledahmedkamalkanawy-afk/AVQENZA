@@ -771,3 +771,57 @@ body{
   color:#d4af37!important;
   border-color:#d4af37!important;
 }
+/* AVQENZA - Luxury Search & Forms */
+
+.search{
+  background:#1c1c1c;
+  border:1px solid #d4af3755;
+  box-shadow:0 12px 35px #0008;
+}
+
+.search input,
+.search select{
+  background:#1c1c1c;
+  color:#fff;
+}
+
+.search input::placeholder{
+  color:#999;
+}
+
+.search button{
+  background:linear-gradient(135deg,#f0d889,#c49a2e);
+  color:#111;
+}
+
+dialog{
+  background:#1b1b1b;
+  border:1px solid #d4af3766;
+  color:#fff;
+  box-shadow:0 20px 70px #000b;
+}
+
+.dialogForm input,
+.dialogForm select,
+.dialogForm textarea{
+  background:#101010;
+  border:1px solid #d4af3744;
+  color:#fff;
+}
+
+.dialogForm input:focus,
+.dialogForm select:focus,
+.dialogForm textarea:focus{
+  border-color:#d4af37;
+  outline:none;
+}
+
+.dialogForm a{
+  color:#d4af37;
+}
+
+#toast{
+  background:#242016;
+  border:1px solid #d4af37;
+  color:#fff;
+}
