@@ -497,3 +497,71 @@
     height:230px;
   }
 }
+
+/* AVQENZA - Premium Footer */
+
+.siteFooter{
+  background:linear-gradient(135deg,#101827,#142b3d);
+  border-top:1px solid #43d6c544;
+  padding:55px 8% 20px;
+  text-align:center;
+}
+
+.footerContent{
+  max-width:1100px;
+  margin:auto;
+}
+
+.footerBrand{
+  display:inline-block;
+  color:#43d6c5;
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:2px;
+  text-decoration:none;
+}
+
+.footerDescription{
+  color:#b9c7d6;
+  font-size:14px;
+  line-height:2;
+  margin:12px auto 25px;
+}
+
+.footerLinks{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px 25px;
+  padding:20px 0;
+  border-top:1px solid #ffffff12;
+  border-bottom:1px solid #ffffff12;
+}
+
+.footerLinks a{
+  color:#dce5ee;
+  text-decoration:none;
+  font-size:14px;
+  transition:.2s;
+}
+
+.footerLinks a:hover{
+  color:#43d6c5;
+}
+
+.footerCopyright{
+  color:#8192a7;
+  font-size:12px;
+  padding-top:20px;
+}
+
+@media(max-width:480px){
+  .siteFooter{
+    padding:40px 5% 18px;
+  }
+
+  .footerLinks{
+    gap:16px;
+  }
+}
