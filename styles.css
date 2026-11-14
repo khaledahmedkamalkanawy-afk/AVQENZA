@@ -729,3 +729,45 @@ body{
   box-shadow:0 10px 25px #d4af3720;
   transform:translateY(-5px);
 }
+/* AVQENZA - Luxury Header */
+
+.top{
+  background:#101010f5;
+  border-bottom:1px solid #d4af3755;
+  box-shadow:0 5px 25px #0008;
+}
+
+.brand{
+  color:#fff;
+  font-weight:900;
+}
+
+.brand span{
+  color:#d4af37!important;
+}
+
+.top nav a{
+  color:#e5e5e5;
+  transition:.25s;
+}
+
+.top nav a:hover{
+  color:#d4af37;
+}
+
+.top button:not(.outline){
+  background:linear-gradient(135deg,#f0d889,#c49a2e)!important;
+  color:#111!important;
+  font-weight:900;
+  box-shadow:0 4px 15px #d4af3725;
+}
+
+.top button:not(.outline):hover{
+  transform:translateY(-2px);
+  box-shadow:0 7px 20px #d4af3744;
+}
+
+.top .outline{
+  color:#d4af37!important;
+  border-color:#d4af37!important;
+}
