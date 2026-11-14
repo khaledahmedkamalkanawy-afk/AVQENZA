@@ -369,3 +369,113 @@
     height:210px;
   }
 }
+
+/* AVQENZA - Listing Cards Redesign */
+
+.listingGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:22px;
+  align-items:stretch;
+}
+
+.item{
+  display:flex;
+  flex-direction:column;
+  background:#142338;
+  border:1px solid #43d6c533;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 8px 28px #0003;
+  transition:transform .25s,border-color .25s,box-shadow .25s;
+}
+
+.item:hover{
+  transform:translateY(-5px);
+  border-color:#43d6c5;
+  box-shadow:0 15px 35px #0005;
+}
+
+.item>img{
+  display:block;
+  width:100%;
+  height:230px;
+  object-fit:cover;
+  background:#1c3045;
+}
+
+.itemBody{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  padding:18px;
+  gap:10px;
+}
+
+.itemBody h3{
+  color:#fff;
+  font-size:18px;
+  line-height:1.7;
+  margin:0;
+}
+
+.itemBody .price{
+  align-self:flex-start;
+  color:#43d6c5;
+  background:#43d6c518;
+  border:1px solid #43d6c533;
+  border-radius:10px;
+  padding:7px 13px;
+  font-size:18px;
+  font-weight:900;
+}
+
+.itemBody p{
+  color:#c0ccda;
+  line-height:1.9;
+  margin:0;
+}
+
+.itemBody small{
+  color:#43d6c5;
+  font-size:12px;
+}
+
+.itemBody .detailsBtn{
+  width:100%;
+  background:#43d6c5!important;
+  color:#101827!important;
+  font-weight:900;
+  padding:12px!important;
+  border-radius:10px!important;
+}
+
+.itemBody a{
+  color:#43d6c5;
+  text-decoration:none;
+  font-weight:700;
+}
+
+@media(max-width:800px){
+  .listingGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:13px;
+  }
+  .item>img{
+    height:175px;
+  }
+  .itemBody{
+    padding:13px;
+  }
+  .itemBody h3{
+    font-size:15px;
+  }
+}
+
+@media(max-width:480px){
+  .listingGrid{
+    grid-template-columns:1fr;
+  }
+  .item>img{
+    height:230px;
+  }
+}
