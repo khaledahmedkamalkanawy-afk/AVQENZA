@@ -825,3 +825,80 @@ dialog{
   border:1px solid #d4af37;
   color:#fff;
 }
+/* AVQENZA - Premium Mobile Finish */
+
+@media(max-width:800px){
+
+  .top{
+    background:#101010f5;
+    border-bottom:1px solid #d4af3755;
+  }
+
+  .top nav a{
+    color:#e5e5e5;
+  }
+
+  .hero{
+    background:
+      radial-gradient(ellipse at 50% 20%,#59451d 0,transparent 45%),
+      #101010;
+  }
+
+  .hero h1{
+    color:#fff;
+    font-size:38px;
+  }
+
+  .search{
+    background:#1c1c1c;
+    border-color:#d4af3755;
+  }
+
+  .search input,
+  .search select{
+    background:#1c1c1c;
+    color:#fff;
+  }
+
+  .cats{
+    gap:12px;
+  }
+
+  .cat{
+    min-height:105px;
+  }
+
+  .listingGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .item{
+    background:#1b1b1b;
+    border-color:#d4af3744;
+  }
+
+}
+
+@media(max-width:480px){
+
+  .listingGrid{
+    grid-template-columns:1fr;
+  }
+
+  .hero h1{
+    font-size:32px;
+  }
+
+  .heroArt{
+    min-height:250px;
+  }
+
+  .sectionHead h2{
+    font-size:25px;
+  }
+
+  .item img{
+    height:230px;
+  }
+
+}
