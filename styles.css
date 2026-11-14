@@ -279,3 +279,93 @@
     padding:22px 10px;
   }
 }
+
+/* AVQENZA - Premium Listing Cards */
+
+.listings{
+  background:linear-gradient(180deg,#0c1422,#101d2d);
+}
+
+.listings .sectionHead h2{
+  color:#fff;
+}
+
+.listingGrid{
+  gap:22px;
+}
+
+.item{
+  background:linear-gradient(145deg,#192b40,#111d2e);
+  border:1px solid #43d6c525;
+  border-radius:17px;
+  overflow:hidden;
+  transition:all .25s ease;
+  box-shadow:0 8px 25px #0002;
+}
+
+.item:hover{
+  transform:translateY(-5px);
+  border-color:#43d6c5;
+  box-shadow:0 15px 35px #0005;
+}
+
+.item img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  transition:transform .3s ease;
+}
+
+.item:hover img{
+  transform:scale(1.04);
+}
+
+.itemBody{
+  padding:19px;
+}
+
+.itemBody h3{
+  color:#fff;
+  font-size:18px;
+  line-height:1.7;
+}
+
+.itemBody p{
+  color:#b4c2d2;
+  line-height:1.9;
+}
+
+.price{
+  display:inline-block;
+  color:#43d6c5;
+  font-size:19px;
+  margin-top:8px;
+}
+
+.item button{
+  border-radius:9px;
+}
+
+@media(max-width:800px){
+  .listingGrid{
+    gap:13px;
+  }
+
+  .item img{
+    height:175px;
+  }
+
+  .itemBody{
+    padding:13px;
+  }
+
+  .itemBody h3{
+    font-size:15px;
+  }
+}
+
+@media(max-width:480px){
+  .item img{
+    height:210px;
+  }
+}
