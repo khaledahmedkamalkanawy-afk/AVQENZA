@@ -86,3 +86,137 @@
   border-color:#43d6c566!important;
   color:#43d6c5!important;
 }
+
+/* AVQENZA - New Premium Hero Design */
+
+.hero{
+  position:relative;
+  min-height:620px;
+  padding:85px 8%;
+  grid-template-columns:1.15fr .85fr;
+  gap:35px;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 80% 20%,#164b55 0,transparent 38%),
+    linear-gradient(135deg,#101827,#14283a 65%,#101827);
+}
+
+.heroText{
+  position:relative;
+  z-index:2;
+}
+
+.hero .eyebrow{
+  display:inline-block;
+  padding:8px 16px;
+  border:1px solid #43d6c544;
+  border-radius:30px;
+  background:#43d6c510;
+  color:#43d6c5;
+}
+
+.hero h1{
+  font-size:clamp(42px,5.5vw,70px);
+  line-height:1.4;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.hero h1 em{
+  color:#43d6c5;
+}
+
+.heroText>p:not(.eyebrow){
+  font-size:16px;
+  line-height:2.1;
+  color:#c4d0df;
+}
+
+.heroBenefit{
+  background:linear-gradient(120deg,#43d6c51c,#43d6c506);
+  border:1px solid #43d6c544;
+  border-right:4px solid #43d6c5;
+  border-radius:14px;
+  padding:18px 22px;
+}
+
+.heroBenefit strong{
+  color:#43d6c5!important;
+  font-size:19px;
+}
+
+.search{
+  margin-top:28px;
+  padding:9px;
+  border:1px solid #43d6c555;
+  border-radius:15px;
+  box-shadow:0 15px 40px #0004;
+}
+
+.search button{
+  background:#43d6c5;
+  color:#101827;
+  padding:13px 25px;
+}
+
+.heroArt{
+  min-height:380px;
+}
+
+.orb{
+  width:320px;
+  height:320px;
+  background:linear-gradient(135deg,#43d6c5,#176b76 55%,#18334a);
+  box-shadow:0 0 100px #43d6c533;
+}
+
+.glass{
+  width:300px;
+  border:1px solid #43d6c577;
+  background:linear-gradient(135deg,#ffffff20,#43d6c510);
+  box-shadow:0 30px 80px #0006;
+}
+
+.glass span{
+  color:#43d6c5;
+}
+
+.glass strong{
+  color:#fff;
+}
+
+/* Mobile Hero */
+@media(max-width:800px){
+  .hero{
+    grid-template-columns:1fr;
+    padding:55px 6% 35px;
+    text-align:center;
+    gap:15px;
+  }
+
+  .heroText>p:not(.eyebrow){
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .heroBenefit{
+    text-align:right;
+  }
+
+  .heroArt{
+    min-height:280px;
+  }
+
+  .orb{
+    width:230px;
+    height:230px;
+  }
+
+  .glass{
+    width:260px;
+  }
+
+  .search{
+    text-align:right;
+  }
+}
