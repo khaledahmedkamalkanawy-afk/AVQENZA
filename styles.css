@@ -22,3 +22,28 @@
 .adminStat span{font-size:14px}
 .adminSubhead{margin:28px 0 12px}
 .adminSubhead h3{font-size:20px}
+
+.heroBenefit{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  max-width:480px;
+  margin-top:22px;
+  padding:16px 20px;
+  border:1px solid #43d6c544;
+  border-right:4px solid #43d6c5;
+  border-radius:12px;
+  background:#43d6c510;
+}
+
+.heroBenefit strong{
+  color:#43d6c5;
+  font-size:18px;
+  font-weight:900;
+}
+
+.heroBenefit span{
+  color:#c3cedb;
+  font-size:13px;
+  line-height:1.8;
+}
