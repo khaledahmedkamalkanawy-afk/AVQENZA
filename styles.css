@@ -50,3 +50,39 @@
 .heroBenefit strong{
   color:#43d6c5 !important;
 }
+/* AVQENZA - New Header Design */
+.top{
+  background:#101827ed;
+  border-bottom:1px solid #43d6c522;
+  box-shadow:0 5px 25px #0003;
+}
+
+.brand span{
+  color:#43d6c5;
+}
+
+.top nav a{
+  color:#f1f5f9;
+  transition:.2s;
+}
+
+.top nav a:hover{
+  color:#43d6c5;
+}
+
+.top button:not(.outline){
+  background:#43d6c5;
+  color:#101827;
+  border-radius:10px;
+  transition:.2s;
+}
+
+.top button:not(.outline):hover{
+  background:#65e5d6;
+  transform:translateY(-2px);
+}
+
+.top .outline{
+  border-color:#43d6c566!important;
+  color:#43d6c5!important;
+}
