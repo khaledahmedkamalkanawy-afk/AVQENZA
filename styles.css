@@ -654,3 +654,43 @@ body{
 .footerLinks a:hover{
   color:#d4af37;
 }
+/* AVQENZA - Luxury Gold Listing Cards */
+
+.item{
+  background:linear-gradient(145deg,#22201b,#141414);
+  border:1px solid #d4af3740;
+  border-radius:18px;
+  box-shadow:0 8px 25px #0005;
+  transition:.3s ease;
+}
+
+.item:hover{
+  border-color:#d4af37;
+  transform:translateY(-6px);
+  box-shadow:0 15px 35px #d4af3720;
+}
+
+.itemBody h3{
+  color:#fff;
+}
+
+.itemBody p{
+  color:#bdbdbd;
+}
+
+.itemBody .price{
+  color:#d4af37;
+  background:#d4af3715;
+  border:1px solid #d4af3744;
+  border-radius:10px;
+  padding:8px 14px;
+}
+
+.itemBody .detailsBtn{
+  background:#d4af37!important;
+  color:#101010!important;
+}
+
+.itemBody a{
+  color:#e2c56d;
+}
