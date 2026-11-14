@@ -412,6 +412,14 @@ $('addTop').onclick=async()=>{
   else $('authDialog').showModal();
 };
 $('loginBtn').onclick=()=>$('authDialog').showModal();
+$('signupTop').onclick=()=>{
+  signUpMode=true;
+  $('authTitle').textContent='إنشاء حساب';
+  $('authSubmit').textContent='إنشاء الحساب';
+  $('authMsg').textContent='';
+  $('authSwitch').innerHTML='لديك حساب؟ <a href="#" id="signupLink">تسجيل الدخول</a>';
+  $('authDialog').showModal();
+};
 
 $('authSwitch').addEventListener('click',e=>{
   if(e.target.id!=='signupLink')return;
