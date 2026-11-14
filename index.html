@@ -16,8 +16,58 @@
 <button id="addTop">＋ أضف إعلانك</button>
 </div></header>
 <main>
-<section class="hero"><div class="heroText"><p class="eyebrow">سوقك في مكان واحد</p><h1>كل اللي بتدور عليه،<br><em>في مكان واحد.</em></h1><p>اكتشف، قارن، واتواصل مباشرة مع البائعين. تجربة أسهل للبيع والشراء في مصر.</p>
-<div class="search"><input id="searchInput" placeholder="بتدور على إيه؟ مثال: شقة، عربية، موبايل"><select id="categoryFilter"><option value="">كل الأقسام</option><option>السيارات</option><option>العقارات</option><option>موبايلات</option><option>إلكترونيات</option><option>أثاث ومنزل</option><option>ملابس وإكسسوارات</option><option>خدمات</option><option>وظائف</option></select><button id="searchBtn">ابحث</button></div></div><div class="heroArt"><div class="orb"></div><div class="glass"><span>AVQENZA MARKETPLACE</span><strong>بيع أسرع.<br>اشتري أذكى.</strong><small>منصة واحدة لكل احتياجاتك</small></div></div></section>
+
+<section class="hero">
+  <div class="heroText">
+    <p class="eyebrow">سوقك في مكان واحد</p>
+
+    <h1>
+      كل اللي بتدور عليه،
+      <br>
+      <em>في مكان واحد.</em>
+    </h1>
+
+    <p>
+      اكتشف، قارن، واتواصل مباشرة مع البائعين.
+      تجربة أسهل للبيع والشراء في مصر.
+    </p>
+
+    <div class="heroBenefit">
+      <strong>انشر إعلانك مجانًا 100%</strong>
+      <span>اعرض منتجاتك وتواصل مباشرة مع المشترين في كل مصر.</span>
+    </div>
+
+    <div class="search">
+      <input id="searchInput"
+        placeholder="بتدور على إيه؟ مثال: شقة، عربية، موبايل">
+
+      <select id="categoryFilter">
+        <option value="">كل الأقسام</option>
+        <option>السيارات</option>
+        <option>العقارات</option>
+        <option>موبايلات</option>
+        <option>إلكترونيات</option>
+        <option>أثاث ومنزل</option>
+        <option>ملابس وإكسسوارات</option>
+        <option>خدمات</option>
+        <option>وظائف</option>
+      </select>
+
+      <button id="searchBtn">ابحث</button>
+    </div>
+  </div>
+
+  <div class="heroArt">
+    <div class="orb"></div>
+    <div class="glass">
+      <span>AVQENZA MARKETPLACE</span>
+      <strong>بيع أسرع.<br>اشتري أذكى.</strong>
+      <small>منصة واحدة لكل احتياجاتك</small>
+    </div>
+  </div>
+</section>
+  
+
 <section id="categories" class="section"><div class="sectionHead"><div><small>اكتشف بسهولة</small><h2>تصفح الأقسام</h2></div><p>اختار القسم المناسب وابدأ رحلتك</p></div><div class="cats" id="cats"></div></section>
 <section id="listings" class="section listings"><div class="sectionHead"><div><small>اختيارات السوق</small><h2>أحدث الإعلانات</h2></div><button class="outline" id="refreshBtn">تحديث الإعلانات</button></div><div id="listingGrid" class="listingGrid"><div class="empty">جاري تحميل الإعلانات...</div></div></section>
 <section id="myListingsSection" class="section" hidden>
