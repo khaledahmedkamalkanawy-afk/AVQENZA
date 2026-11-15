@@ -527,10 +527,11 @@ async function loadAdminDashboard(){
   ).join('');
 
   await Promise.all([
-    loadAdminAllListings(),
-    loadAdminReports(),
-    loadPendingListings()
-  ]);
+  loadAdminAllListings(),
+  loadAdminReports(),
+  loadPendingListings(),
+  loadAdminUsers()
+]);
 }
 
 async function loadAdminAllListings(){
@@ -587,7 +588,12 @@ async function loadAdminAllListings(){
     el.querySelector('button[data-featured]')?.addEventListener('click',()=>{
   toggleFeaturedListing(x.id,x.is_featured);
 });
-    async function toggleFeaturedListing(id,currentValue){
+
+box.appendChild(el);
+  });
+}
+
+async function toggleFeaturedListing(id,currentValue){
   if(!isAdmin)return;
 
   const {error}=await supabaseClient
@@ -605,7 +611,52 @@ async function loadAdminAllListings(){
   await loadAdminAllListings();
   await loadFeaturedListings();
   await loadListings();
-    }
+}
+async function loadAdminUsers(){
+  const box=$('adminUsers');
+  if(!box)return;
+
+  box.innerHTML='<div class="empty">جاري تحميل المستخدمين...</div>';
+
+  const {data:users,error}=await supabaseClient
+    .from('profiles')
+    .select('id,display_name,created_at')
+    .order('created_at',{ascending:false});
+
+  if(error){
+    box.innerHTML='<div class="empty">تعذر تحميل المستخدمين: '+escapeHtml(error.message)+'</div>';
+    return;
+  }
+
+  const {data:listings,error:listingsError}=await supabaseClient
+    .from('listings')
+    .select('seller_id');
+
+  if(listingsError){
+    box.innerHTML='<div class="empty">تعذر تحميل عدد الإعلانات.</div>';
+    return;
+  }
+
+  if(!users?.length){
+    box.innerHTML='<div class="empty">لا يوجد مستخدمون مسجلون.</div>';
+    return;
+  }
+
+  box.innerHTML='';
+
+  users.forEach(user=>{
+    const count=(listings||[]).filter(x=>x.seller_id===user.id).length;
+    const el=document.createElement('article');
+    el.className='item';
+
+    el.innerHTML=`
+      <div class="itemBody">
+        <h3>${escapeHtml(user.display_name||'مستخدم بدون اسم')}</h3>
+        <p>عدد الإعلانات: ${count}</p>
+        <small>تاريخ التسجيل: ${user.created_at?new Date(user.created_at).toLocaleDateString('ar-EG'):'غير متاح'}</small>
+      </div>
+    `;
+
     box.appendChild(el);
   });
 }
