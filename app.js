@@ -538,7 +538,7 @@ async function loadAdminAllListings(){
   box.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
 
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,price,city,category,status,created_at')
+    .select('id,title,price,city,category,status,created_at,is_featured')
     .order('created_at',{ascending:false})
     .limit(100);
 
@@ -569,6 +569,12 @@ async function loadAdminAllListings(){
         <p>${Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل'}</p>
         <small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small>
         <p>الحالة: ${statusNames[x.status]||escapeHtml(x.status)}</p>
+        ${x.status==='approved'?`
+  <p>${x.is_featured?'⭐ إعلان مميز':'إعلان عادي'}</p>
+  <button data-featured="true">
+    ${x.is_featured?'إلغاء التمييز':'تمييز الإعلان ⭐'}
+  </button>
+`:''}
         ${x.status==='pending'?`
           <button data-action="approved">اعتماد الإعلان</button>
           <button class="outline" data-action="rejected">رفض الإعلان</button>
@@ -578,6 +584,28 @@ async function loadAdminAllListings(){
     el.querySelectorAll('button[data-action]').forEach(btn=>{
       btn.onclick=()=>moderateListing(x.id,btn.dataset.action);
     });
+    el.querySelector('button[data-featured]')?.addEventListener('click',()=>{
+  toggleFeaturedListing(x.id,x.is_featured);
+});
+    async function toggleFeaturedListing(id,currentValue){
+  if(!isAdmin)return;
+
+  const {error}=await supabaseClient
+    .from('listings')
+    .update({is_featured:!currentValue})
+    .eq('id',id)
+    .eq('status','approved');
+
+  if(error){
+    toast('تعذر تحديث الإعلان: '+error.message);
+    return;
+  }
+
+  toast(!currentValue?'تم تمييز الإعلان ⭐':'تم إلغاء التمييز');
+  await loadAdminAllListings();
+  await loadFeaturedListings();
+  await loadListings();
+    }
     box.appendChild(el);
   });
 }
