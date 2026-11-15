@@ -160,6 +160,65 @@ if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
 }
+async function loadFeaturedListings(){
+  const grid=$('featuredGrid');
+  if(!grid || !supabaseClient)return;
+
+  grid.innerHTML='<div class="empty">جاري تحميل الإعلانات المميزة...</div>';
+
+  const {data,error}=await supabaseClient
+    .from('listings')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,status,created_at')
+    .eq('status','approved')
+    .eq('is_featured',true)
+    .order('created_at',{ascending:false})
+    .limit(4);
+
+  if(error){
+    grid.innerHTML='<div class="empty">تعذر تحميل الإعلانات المميزة.</div>';
+    console.error(error);
+    return;
+  }
+
+  grid.innerHTML='';
+
+  if(!data?.length){
+    grid.innerHTML='<div class="empty">لا توجد إعلانات مميزة حاليًا.</div>';
+    return;
+  }
+
+  data.forEach(x=>{
+    const card=document.createElement('article');
+    card.className='item';
+
+    const img=x.image_url||'';
+    const price=Number(x.price)>0
+      ?Number(x.price).toLocaleString('ar-EG')+' جنيه'
+      :'السعر عند التواصل';
+
+    const phone=String(x.phone||'').replace(/[^0-9+]/g,'');
+    const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
+
+    card.innerHTML=`
+      ${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div style="height:180px;background:#26364a"></div>'}
+      <div class="itemBody">
+        <h3>${escapeHtml(x.title)}</h3>
+        <div class="price">${price}</div>
+        <p>${escapeHtml(x.description||'')}</p>
+        <small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small>
+        <div style="margin-top:12px">
+          <button type="button" class="detailsBtn" style="padding:10px 16px;border:0;border-radius:8px;background:#1769aa;color:white;cursor:pointer">عرض التفاصيل</button>
+        </div>
+        ${phone?`<p><a href="tel:${escapeHtml(phone)}">اتصال بالبائع</a> · <a target="_blank" rel="noopener" href="https://wa.me/${escapeHtml(wa)}">واتساب</a></p>`:''}
+      </div>`;
+
+    card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+    card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
+    if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
+
+    grid.appendChild(card);
+  });
+}
 async function loadPendingListings(){
   if(!isAdmin)return;
   const box=$('adminListings');
