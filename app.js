@@ -109,6 +109,7 @@ async function init(){
     await checkAdmin();
   });
   await loadListings();
+  await loadFeaturedListings();
 }
 
 async function loadListings(){
