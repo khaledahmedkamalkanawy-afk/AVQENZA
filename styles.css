@@ -1255,3 +1255,92 @@ body { background:var(--bg); color:#172b45; }
   .listingGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .item img,.listingPhotoWrap > img,.listingPhotoEmpty { height:120px; }
 }
+
+
+/* AVQENZA vibrant premium color identity */
+:root {
+  --navy:#111936;
+  --navy2:#202b58;
+  --blue:#315CFF;
+  --yellow:#FFC247;
+  --yellow-hover:#F2A900;
+  --bg:#F5F7FF;
+  --border:#E2E7F5;
+  --avq-violet:#7655F6;
+  --avq-cyan:#24C6E8;
+  --avq-coral:#FF765E;
+}
+body { background:#F5F7FF; color:#18213D; }
+.top {
+  background:linear-gradient(112deg,#10172F 0%,#202B58 58%,#343A83 100%);
+  box-shadow:0 9px 30px #18214b30;
+}
+.top button:not(.outline) {
+  color:#17203c;
+  background:linear-gradient(135deg,#FFE08A,#FFC247 58%,#FFB52E);
+  box-shadow:0 5px 16px #ffbd3b40;
+}
+.top button:not(.outline):hover { filter:brightness(1.05);transform:translateY(-1px); }
+.hero {
+  background:
+    radial-gradient(ellipse at 8% 15%,#d8f7ff 0,transparent 30%),
+    radial-gradient(ellipse at 88% 15%,#e7ddff 0,transparent 32%),
+    radial-gradient(ellipse at 72% 100%,#fff0d1 0,transparent 28%),
+    linear-gradient(125deg,#fff 0%,#f3f5ff 52%,#eaf8ff 100%);
+}
+.hero:after { height:6px;background:linear-gradient(90deg,#24C6E8,#7655F6,#315CFF,#FFC247); }
+.hero h1 { color:#111936; }
+.hero h1 em { color:#6547E8; }
+.eyebrow {
+  border-color:#d9d5ff;
+  background:linear-gradient(100deg,#fff,#f1efff);
+  color:#6046dc;
+}
+.heroBenefit { border-color:#e1e5fb;border-right-color:#7655F6;background:#ffffffed; }
+.heroBenefit strong { color:#6046dc; }
+.search { border-color:#dce2f5;background:#fff;box-shadow:0 15px 38px #202b5830; }
+.search input:focus,.search select:focus { background:#f8f7ff;box-shadow:inset 0 0 0 1px #9b8aff; }
+.search button,.detailsBtn,.sellerProfileForm > button[type="submit"],.viewSellerStore {
+  background:linear-gradient(120deg,#315CFF,#6547E8);
+  box-shadow:0 5px 14px #315cff30;
+}
+.search button:hover,.detailsBtn:hover { background:linear-gradient(120deg,#244be0,#5436d4); }
+.orb {
+  background:radial-gradient(circle at 32% 25%,#fff 0,#d9d2ff 42%,#8bdff0 100%);
+  box-shadow:0 24px 65px #7655f630;
+}
+.glass { border-color:#ffffffed;background:linear-gradient(145deg,#fffefc,#f0efffdf);box-shadow:0 24px 60px #24265a30; }
+.glass span { color:#6547E8; }
+.glass strong { color:#172044; }
+.sectionHead > div > small,.how > small { color:#6547E8; }
+.sectionHead h2,.how h2 { color:#111936; }
+.cat { border-color:#e3e6f6;background:linear-gradient(145deg,#fff 0%,#f7f7ff 100%); }
+.cat b { color:#6046dc;background:linear-gradient(145deg,#eeeaff,#e4faff); }
+.cat:nth-child(4n+1) b { background:#e8f8ff; }
+.cat:nth-child(4n+2) b { background:#f0eaff; }
+.cat:nth-child(4n+3) b { background:#fff2d9; }
+.cat:nth-child(4n) b { background:#ffeae7; }
+.cat span { color:#202b58; }
+.cat:hover { border-color:#a99aff;box-shadow:0 14px 30px #7655f62b; }
+.cat:hover b { background:#e7e1ff; }
+.listings,.how { border-color:#e3e7f4;box-shadow:0 10px 30px #202b5810; }
+.item { border-color:#e5e8f4;background:#fff; }
+.item:hover { border-color:#b8b0ff;box-shadow:0 14px 30px #4e43a51c; }
+.item h3 { color:#202b58; }
+.price,.detailPrice { color:#e45b42; }
+.steps article { border-color:#e4e6f5;background:linear-gradient(145deg,#fff,#f5f3ff); }
+.steps article b { color:#6046dc;background:linear-gradient(135deg,#eeeaff,#e3faff); }
+.siteFooter { background:linear-gradient(115deg,#10172F,#202B58 65%,#343A83); }
+.favoriteToggle:hover { background:#f1efff;border-color:#a99aff;color:#6046dc; }
+.favoriteToggle.isFavorite { background:#fff0ee;border-color:#ffb3a8;color:#d94f3c; }
+.sellerReviewForm button { background:linear-gradient(120deg,#FFC247,#FFAD2F);color:#17203c; }
+.sellerReviewStars { color:#e9a51d; }
+.detailCall { background:linear-gradient(120deg,#315CFF,#6547E8); }
+.detailWhatsapp { background:#16a36a; }
+@media(max-width:650px) {
+  .top { background:linear-gradient(112deg,#10172F,#202B58 58%,#343A83); }
+  .hero { background:
+    radial-gradient(ellipse at 5% 5%,#d8f7ff 0,transparent 34%),
+    radial-gradient(ellipse at 95% 8%,#e7ddff 0,transparent 34%),
+    linear-gradient(145deg,#fff,#f2f4ff 65%,#eaf8ff); }
+}
