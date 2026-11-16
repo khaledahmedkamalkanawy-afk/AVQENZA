@@ -3,47 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="سياسة الخصوصية لمنصة AVQENZA، وكيفية التعامل مع البيانات عند استخدام الموقع.">
+  <meta name="theme-color" content="#12365d">
   <title>سياسة الخصوصية - AVQENZA</title>
   <style>
-    body{font-family:Arial,sans-serif;line-height:1.9;margin:0;padding:20px;background:#f7f8fa;color:#222}
-    main{max-width:800px;margin:30px auto;background:white;padding:25px;border-radius:12px}
-    h1,h2{color:#173b63}
-    a{color:#1769aa}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#263445;line-height:1.9}
+    a{color:inherit;text-decoration:none}
+    .topbar{background:#fff;border-bottom:1px solid #e7edf4}
+    .nav{max-width:1080px;margin:auto;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .brand{font-size:22px;font-weight:800;color:#173b63;letter-spacing:.3px}
+    .navlinks{display:flex;gap:18px;flex-wrap:wrap;color:#526477;font-size:14px}
+    .navlinks a:hover,.navlinks a:focus-visible{color:#1476c8}
+    .hero{background:linear-gradient(135deg,#12365d,#1769aa);color:#fff;padding:42px 22px}
+    .hero-inner{max-width:1080px;margin:auto}
+    .eyebrow{font-size:13px;color:#c9e3fb;margin:0 0 7px}
+    h1{font-size:clamp(27px,5vw,38px);line-height:1.4;margin:0 0 8px}
+    .hero p{margin:0;color:#e3effa}
+    .updated{font-size:13px;color:#c9e3fb;margin-top:10px}
+    .layout{max-width:1080px;margin:28px auto;padding:0 22px 40px;display:grid;grid-template-columns:245px minmax(0,1fr);gap:22px;align-items:start}
+    aside,.content{background:#fff;border:1px solid #e6edf4;border-radius:16px;box-shadow:0 8px 26px rgba(24,55,88,.05)}
+    aside{padding:18px;position:sticky;top:18px}
+    aside strong{display:block;color:#173b63;margin-bottom:10px}
+    aside a{display:block;padding:6px 0;color:#607286;font-size:14px}
+    aside a:hover,aside a:focus-visible{color:#1476c8}
+    .content{padding:clamp(20px,4vw,36px)}
+    .intro{background:#eef6fd;border-right:4px solid #2485ce;padding:14px 17px;border-radius:9px;margin:0 0 24px;color:#36536d}
+    section{padding:0 0 19px;margin:0 0 20px;border-bottom:1px solid #edf1f5;scroll-margin-top:20px}
+    section:last-of-type{border:0;margin-bottom:0}
+    h2{font-size:19px;color:#173b63;margin:0 0 7px}
+    section p{margin:0;color:#526477}
+    .note{margin-top:24px;padding:17px;background:#f7f9fc;border-radius:12px;color:#526477}
+    .note a{color:#1476c8;font-weight:700}
+    footer{text-align:center;padding:22px;color:#718096;font-size:13px}
+    a:focus-visible{outline:3px solid #80bfff;outline-offset:3px;border-radius:4px}
+    @media(max-width:720px){.layout{grid-template-columns:1fr;margin-top:18px}.nav{align-items:flex-start}.navlinks{gap:12px}aside{position:static}.content{padding:21px}.hero{padding:32px 22px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
 </head>
 <body>
-<main>
-  <h1>سياسة الخصوصية – AVQENZA</h1>
-  <p>آخر تحديث: 11 نوفمبر 2026</p>
+  <header class="topbar">
+    <nav class="nav" aria-label="التنقل الرئيسي">
+      <a class="brand" href="index.html">AVQENZA</a>
+      <div class="navlinks">
+        <a href="index.html">الرئيسية</a>
+        <a href="about.html">عن المنصة</a>
+        <a href="contact.html">تواصل معنا</a>
+      </div>
+    </nav>
+  </header>
+  <div class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">خصوصيتك مهمة بالنسبة لنا</p>
+      <h1>سياسة الخصوصية</h1>
+      <p>نوضح هنا أنواع البيانات التي قد تقدمها عند استخدام AVQENZA وكيفية التعامل معها.</p>
+      <div class="updated">آخر تحديث: 16 نوفمبر 2026</div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside aria-label="محتويات سياسة الخصوصية">
+      <strong>محتويات الصفحة</strong>
+      <a href="#intro">مقدمة</a>
+      <a href="#data">البيانات التي قد نجمعها</a>
+      <a href="#use">استخدام البيانات</a>
+      <a href="#public">البيانات الظاهرة للعامة</a>
+      <a href="#storage">التخزين والحماية</a>
+      <a href="#sharing">مشاركة البيانات</a>
+      <a href="#choices">اختياراتك ومسؤوليتك</a>
+      <a href="#children">خصوصية الأطفال</a>
+      <a href="#changes">تحديث السياسة</a>
+      <a href="#contact">التواصل</a>
+    </aside>
+    <main class="content">
+      <p class="intro">تشرح هذه الصفحة ممارسات الخصوصية المتعلقة باستخدام منصة AVQENZA. باستخدامك للموقع، يرجى قراءة هذه المعلومات بعناية، وعدم نشر أي بيانات لا ترغب في ظهورها للآخرين.</p>
 
-  <h2>1. مقدمة</h2>
-  <p>نحن في AVQENZA نحترم خصوصية المستخدمين ونسعى إلى حماية البيانات التي يقدمونها عند استخدام الموقع.</p>
-
-  <h2>2. البيانات التي نجمعها</h2>
-  <p>قد نجمع البيانات التي تقدمها عند إنشاء حساب أو نشر إعلان، مثل البريد الإلكتروني ورقم الهاتف وعنوان الإعلان ووصفه وسعره والمدينة والصور المرفقة.</p>
-
-  <h2>3. كيف نستخدم البيانات</h2>
-  <p>نستخدم البيانات لإنشاء الحسابات وإدارة الإعلانات وعرضها وتسهيل التواصل بين البائعين والمشترين ومراجعة الإعلانات.</p>
-
-  <h2>4. المعلومات الظاهرة للعامة</h2>
-  <p>قد تظهر بيانات الإعلان التي تنشرها، بما فيها رقم الهاتف والصور والوصف والمدينة، للزوار حتى يتمكنوا من التواصل معك. لا تنشر أي معلومات لا ترغب في إتاحتها للآخرين.</p>
-
-  <h2>5. تخزين البيانات وحمايتها</h2>
-  <p>نستخدم خدمات Supabase لتخزين وإدارة بيانات الموقع. ونتخذ إجراءات مناسبة للمساعدة في حماية البيانات، لكن لا يمكن ضمان أمان أي خدمة إلكترونية بشكل مطلق.</p>
-
-  <h2>6. مشاركة البيانات</h2>
-  <p>لا نبيع البيانات الشخصية للمستخدمين. وقد تتم معالجة البيانات من خلال مزودي الخدمات التقنية اللازمة لتشغيل الموقع.</p>
-
-  <h2>7. مسؤولية المستخدم</h2>
-  <p>أنت مسؤول عن صحة المعلومات التي تنشرها وعن عدم مشاركة بيانات شخصية أو صور لا تملك حق استخدامها.</p>
-
-  <h2>8. التعديلات</h2>
-  <p>قد نقوم بتحديث سياسة الخصوصية من وقت لآخر، وسيتم نشر النسخة المحدثة على هذه الصفحة.</p>
-
-  <h2>9. التواصل</h2>
-  <p>للاستفسارات المتعلقة بالخصوصية، يمكنك التواصل معنا من خلال وسائل التواصل المتاحة على الموقع.</p>
-
-  <p><a href="index.html">العودة إلى الصفحة الرئيسية</a></p>
-</main>
+      <section id="intro">
+        <h2>1. مقدمة</h2>
+        <p>نحترم خصوصية مستخدمي AVQENZA ونسعى إلى التعامل مع البيانات التي يقدمونها بصورة مسؤولة، بما يساعد على تشغيل المنصة وإدارة الحسابات والإعلانات.</p>
+      </section>
+      <section id="data">
+        <h2>2. البيانات التي قد نجمعها</h2>
+        <p>بحسب طريقة استخدامك للموقع، قد تشمل البيانات التي تقدمها معلومات الحساب مثل البريد الإلكتروني، ومعلومات الإعلان مثل العنوان والوصف والسعر والمدينة ورقم التواصل والصور. وقد تتضمن أيضًا المعلومات التي ترسلها إلينا عند التواصل مع فريق الدعم.</p>
+      </section>
+      <section id="use">
+        <h2>3. كيف نستخدم البيانات</h2>
+        <p>قد نستخدم البيانات لإنشاء الحسابات وإدارتها، ونشر الإعلانات ومراجعتها، وعرض نتائج البحث، وتسهيل التواصل بين المستخدمين، والرد على الاستفسارات، وتحسين تشغيل الموقع والحد من إساءة الاستخدام.</p>
+      </section>
+      <section id="public">
+        <h2>4. المعلومات التي تظهر للعامة</h2>
+        <p>المعلومات التي تضيفها إلى إعلانك قد تكون متاحة لزوار الموقع، مثل عنوان الإعلان ووصفه وسعره وصوره وموقعه ورقم التواصل إذا أضفته. يرجى مراجعة الإعلان قبل نشره وعدم تضمين كلمات مرور أو رموز تحقق أو معلومات شخصية لا تريد مشاركتها.</p>
+      </section>
+      <section id="storage">
+        <h2>5. تخزين البيانات وحمايتها</h2>
+        <p>تستخدم المنصة خدمات Supabase لتخزين وإدارة بعض بياناتها. ونتخذ إجراءات تقنية وتنظيمية مناسبة للمساعدة في حماية البيانات، لكن لا يمكن ضمان أمان نقل المعلومات أو تخزينها عبر الإنترنت بصورة مطلقة.</p>
+      </section>
+      <section id="sharing">
+        <h2>6. مشاركة البيانات</h2>
+        <p>لا نبيع البيانات الشخصية للمستخدمين. وقد تتم معالجة بعض البيانات بواسطة مزودي الخدمات التقنية اللازمة لتشغيل الموقع، أو يتم إتاحتها للآخرين عندما تختار نشرها ضمن إعلان عام، أو عندما يكون الإفصاح مطلوبًا بموجب القانون.</p>
+      </section>
+      <section id="choices">
+        <h2>7. اختياراتك ومسؤوليتك</h2>
+        <p>احرص على دقة البيانات التي تقدمها، وراجع المعلومات التي تضعها في إعلاناتك قبل نشرها. لا تشارك بيانات تسجيل الدخول أو رموز التحقق مع أي شخص. إذا كان لديك استفسار أو طلب متعلق ببياناتك، يمكنك التواصل معنا عبر صفحة الدعم.</p>
+      </section>
+      <section id="children">
+        <h2>8. خصوصية الأطفال</h2>
+        <p>المنصة ليست موجهة للأطفال، ونطلب عدم استخدام الموقع أو تقديم بيانات شخصية من قبل من لا يملك الأهلية القانونية لاستخدامه دون إشراف وموافقة ولي الأمر حيثما يلزم.</p>
+      </section>
+      <section id="changes">
+        <h2>9. تحديث سياسة الخصوصية</h2>
+        <p>قد نحدّث هذه السياسة عند الحاجة لتوضيح ممارسات الموقع أو تغييرها. سننشر النسخة المحدثة على هذه الصفحة مع تعديل تاريخ آخر تحديث، لذا ننصح بمراجعتها من وقت لآخر.</p>
+      </section>
+      <section id="contact">
+        <h2>10. التواصل والاستفسارات</h2>
+        <p>إذا كان لديك سؤال أو طلب متعلق بالخصوصية أو البيانات، يمكنك التواصل معنا من خلال <a href="contact.html">صفحة التواصل والدعم</a>.</p>
+      </section>
+      <div class="note">هذه الصفحة تقدم معلومات عامة عن الخصوصية في المنصة ولا تُعد استشارة قانونية. لمزيد من المعلومات حول استخدام الموقع، يمكنك مراجعة <a href="terms.html">الشروط والأحكام</a> أو <a href="contact.html">التواصل مع فريق AVQENZA</a>.</div>
+    </main>
+  </div>
+  <footer>© 2026 AVQENZA — جميع الحقوق محفوظة</footer>
 </body>
 </html>
