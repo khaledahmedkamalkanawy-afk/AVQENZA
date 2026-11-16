@@ -150,8 +150,15 @@
     <label>المدينة</label>
     <input name="city">
 
-    <label>صورة جديدة (اختياري)</label>
-    <input name="image" type="file" accept="image/*">
+    <label>حالة المنتج</label>
+    <select name="condition">
+      <option value="used">مستعمل</option>
+      <option value="new">جديد</option>
+    </select>
+
+    <label>إضافة صور (اختياري — تُضاف إلى الصور الحالية، بحد أقصى 5 صور)</label>
+    <small data-current-images></small>
+    <input name="image" type="file" accept="image/jpeg,image/png,image/webp" multiple>
 
     <button type="submit">حفظ التعديلات</button>
     <button type="button" onclick="document.getElementById('editAdDialog').close()">إلغاء</button>
