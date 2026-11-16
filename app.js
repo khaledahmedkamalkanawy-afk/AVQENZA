@@ -706,11 +706,11 @@ function openPromotionDialog(listing){
   if(listing.status!=='approved'){toast('يمكن ترقية الإعلان بعد نشره واعتماده فقط.');return;}
   let dialog=$('promotionDialog');
   if(!dialog){dialog=document.createElement('dialog');dialog.id='promotionDialog';dialog.className='dialogForm';document.body.appendChild(dialog);}
-  dialog.innerHTML=\`
+  dialog.innerHTML=`
     <form id="promotionForm" class="dialogForm">
       <button type="button" class="x" id="closePromotion">×</button>
       <h2>ترقية إعلانك ⭐</h2>
-      <p><strong>\${escapeHtml(listing.title)}</strong></p>
+      <p><strong>${escapeHtml(listing.title)}</strong></p>
       <label>اختر الباقة</label>
       <select name="plan" required>
         <option value="featured_7d">إعلان مميز — 7 أيام — 49 جنيه</option>
@@ -727,7 +727,7 @@ function openPromotionDialog(listing){
       <input name="reference" maxlength="100" required placeholder="اكتب رقم العملية الموجود في رسالة التحويل">
       <button type="submit">إرسال طلب الترقية</button>
       <p id="promotionMsg" role="status"></p>
-    </form>\`;
+    </form>`;
   $('closePromotion').onclick=()=>dialog.close();
   const form=$('promotionForm');
   form.onsubmit=async(e)=>{
@@ -1194,14 +1194,14 @@ async function loadPromotionRequests(){
   box.innerHTML='';
   data.forEach(r=>{
     const card=document.createElement('article');card.className='item';
-    card.innerHTML=\`<div class="itemBody">
-      <h3>\${escapeHtml(r.listings?.title||'إعلان غير متاح')}</h3>
-      <p>\${escapeHtml(labels[r.plan_key]||r.plan_key)} · \${Number(r.amount_egp).toLocaleString('ar-EG')} جنيه</p>
+    card.innerHTML=`<div class="itemBody">
+      <h3>${escapeHtml(r.listings?.title||'إعلان غير متاح')}</h3>
+      <p>${escapeHtml(labels[r.plan_key]||r.plan_key)} · ${Number(r.amount_egp).toLocaleString('ar-EG')} جنيه</p>
       <p>وسيلة الدفع: اتصالات كاش</p>
-      <p>مرجع التحويل: <strong>\${escapeHtml(r.transfer_reference||'غير مسجل')}</strong></p>
-      <small>تاريخ الطلب: \${new Date(r.created_at).toLocaleString('ar-EG')}</small>
+      <p>مرجع التحويل: <strong>${escapeHtml(r.transfer_reference||'غير مسجل')}</strong></p>
+      <small>تاريخ الطلب: ${new Date(r.created_at).toLocaleString('ar-EG')}</small>
       <div class="promotionAdminActions"><button data-promo-approve>تأكيد الدفع وتفعيل الباقة</button><button class="outline" data-promo-reject>رفض الطلب</button></div>
-    </div>\`;
+    </div>`;
     card.querySelector('[data-promo-approve]').onclick=()=>reviewPromotionRequest(r.id,true);
     card.querySelector('[data-promo-reject]').onclick=()=>reviewPromotionRequest(r.id,false);
     box.appendChild(card);
