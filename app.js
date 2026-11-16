@@ -409,6 +409,41 @@ async function loadListings(){
   if(!data?.length){
     grid.innerHTML='<div class="empty emptySearchState"><div class="emptySearchIcon">🔎</div><h3>لم نعثر على إعلانات مطابقة</h3><p>جرّب كتابة كلمة أبسط، أو اختيار قسم آخر، أو توسيع نطاق السعر والمدينة.</p><ul><li>تأكد من كتابة كلمة البحث بشكل صحيح.</li><li>احذف بعض الفلاتر لتظهر نتائج أكثر.</li><li>جرّب البحث بدون تحديد المدينة أو الحالة.</li></ul><button type="button" id="emptyClearFilters" class="detailsBtn">مسح الفلاتر وعرض كل الإعلانات</button></div>';
     $('emptyClearFilters')?.addEventListener('click',()=>$('clearSearchBtn').click());
+
+    let suggestionsQuery=supabaseClient.from('listings')
+      .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+      .eq('status','approved');
+    if(cat)suggestionsQuery=suggestionsQuery.eq('category',cat);
+    let {data:suggestions,error:suggestionsError}=await suggestionsQuery
+      .order('created_at',{ascending:false}).limit(4);
+    if((suggestionsError||!suggestions?.length)&&cat){
+      const fallback=await supabaseClient.from('listings')
+        .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+        .eq('status','approved').order('created_at',{ascending:false}).limit(4);
+      suggestions=fallback.data||[];
+      suggestionsError=fallback.error;
+    }
+    if(!suggestionsError&&suggestions?.length){
+      const section=document.createElement('section');
+      section.className='searchSuggestions';
+      section.innerHTML='<div class="sectionHead"><div><small>قد يهمك</small><h3>إعلانات قد تعجبك ✨</h3></div></div><div class="listingGrid searchSuggestionsGrid"></div>';
+      const suggestionsGrid=section.querySelector('.searchSuggestionsGrid');
+      suggestions.forEach(x=>{
+        const card=document.createElement('article');
+        card.className='item';
+        const img=x.image_url||'';
+        const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
+        const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
+        const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
+        card.innerHTML=`<div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}</div><div class="itemBody"><h3>${escapeHtml(x.title)}</h3><div class="price">${price}</div><p>${escapeHtml(x.description||'')}</p><small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small><div style="margin-top:12px"><button type="button" class="detailsBtn">عرض التفاصيل</button></div></div>`;
+        card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+        addFavoriteControl(card,x);
+        card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
+        if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
+        suggestionsGrid.appendChild(card);
+      });
+      grid.appendChild(section);
+    }
     return;
   }
 
