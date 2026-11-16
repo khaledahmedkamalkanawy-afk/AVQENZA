@@ -203,7 +203,7 @@ async function loadListings(){
   if(!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
   let q=supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id')
     .eq('status','approved')
     .order('created_at',{ascending:false})
     .limit(40);
@@ -257,7 +257,7 @@ async function loadFeaturedListings(){
 
   const {data,error}=await supabaseClient
     .from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id')
     .eq('status','approved')
     .eq('is_featured',true)
     .order('created_at',{ascending:false})
