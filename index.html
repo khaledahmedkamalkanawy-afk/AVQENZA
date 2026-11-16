@@ -224,7 +224,7 @@
   </div>
 </footer>
   
-  <script src="app.js?v=20261116-authfix5"></script>
+  <script src="app.js?v=20261116-authfix6"></script>
 <script>
 window.avqenzaAuthFallback = async function () {
   const emailEl=document.getElementById('authEmail');
@@ -245,8 +245,15 @@ window.avqenzaAuthFallback = async function () {
     if(result.error){msg.textContent='تعذر إتمام العملية: '+result.error.message;return;}
     if(isSignup&&!result.data.session){msg.textContent='تم إنشاء الحساب. افتح رسالة التأكيد في بريدك ثم ارجع وسجّل الدخول.';return;}
     msg.textContent=isSignup?'تم إنشاء الحساب بنجاح.':'تم تسجيل الدخول بنجاح.';
-    if(result.data?.session&&window.avqenzaApplySession){
-      await window.avqenzaApplySession(result.data.session);
+    if(result.data?.session){
+      const loginButton=document.getElementById('loginBtn');
+      if(loginButton){
+        loginButton.textContent=result.data.user?.email||'حسابي';
+        loginButton.title='اضغط لتسجيل الخروج';
+      }
+      if(window.avqenzaApplySession){
+        window.avqenzaApplySession(result.data.session).catch(error=>console.error('Session UI refresh error:',error));
+      }
       document.getElementById('authDialog')?.close();
     }
   }catch(error){msg.textContent='حدث خطأ: '+(error.message||error);}
