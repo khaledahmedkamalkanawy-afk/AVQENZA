@@ -37,6 +37,7 @@ function openImageViewer(src,title='صورة الإعلان'){
 
 async function openMyProfile(){
   if(!currentSession?.user){$('authDialog').showModal();return}
+  const user=currentSession.user;
   let dialog=$('sellerProfileDialog');
   if(!dialog){
     dialog=document.createElement('dialog');
@@ -44,23 +45,59 @@ async function openMyProfile(){
     dialog.className='sellerProfileDialog';
     document.body.appendChild(dialog);
   }
-  dialog.innerHTML='<form id="sellerProfileForm" class="sellerProfileForm"><button type="button" class="sellerProfileClose">×</button><small>حساب البائع</small><h2>ملفي الشخصي</h2><label>الاسم الظاهر للمتسوقين</label><input name="display_name" maxlength="60" placeholder="اكتب اسمك أو اسم متجرك"><label>رقم التواصل الشخصي (اختياري)</label><input name="phone" type="tel" maxlength="20" placeholder="رقم الهاتف"><p class="sellerProfileNote">بيانات الملف الشخصي خاصة بحسابك حاليًا، ولا نعرضها للعامة تلقائيًا.</p><button type="submit">حفظ البيانات</button><p class="sellerProfileMessage" aria-live="polite"></p></form>';
+  dialog.innerHTML='<form id="sellerProfileForm" class="sellerProfileForm"><button type="button" class="sellerProfileClose">×</button><small>حساب البائع</small><h2>ملفي ومتجري</h2><label>الاسم الظاهر في حسابك</label><input name="display_name" maxlength="60" placeholder="اسمك الشخصي"><label>رقم التواصل الشخصي (خاص)</label><input name="phone" type="tel" maxlength="20" placeholder="رقم الهاتف"><hr><h3>بيانات المتجر العامة</h3><label>اسم المتجر</label><input name="store_name" maxlength="80" placeholder="اسم متجرك"><label>نبذة عن المتجر</label><textarea name="bio" maxlength="500" rows="3" placeholder="اكتب نبذة مختصرة عن نشاطك"></textarea><label>صورة شخصية أو شعار (اختياري)</label><input name="avatar" type="file" accept="image/jpeg,image/png,image/webp"><label>صورة غلاف المتجر (اختياري)</label><input name="cover" type="file" accept="image/jpeg,image/png,image/webp"><p class="sellerProfileNote">اسم المتجر والنبذة والصور تظهر للزوار. رقم هاتفك يظل خاصًا ولا يُعرض من خلال صفحة المتجر.</p><button type="submit">حفظ بيانات المتجر</button><p class="sellerProfileMessage" aria-live="polite"></p></form>';
   dialog.querySelector('.sellerProfileClose').onclick=()=>dialog.close();
   const form=dialog.querySelector('form');
-  const {data,error}=await supabaseClient.from('profiles').select('display_name,phone').eq('id',currentSession.user.id).maybeSingle();
-  if(error){toast('تعذر تحميل الملف الشخصي: '+error.message);return}
-  form.elements.display_name.value=data?.display_name||'';
-  form.elements.phone.value=data?.phone||'';
+  const [profileResult,storeResult]=await Promise.all([
+    supabaseClient.from('profiles').select('display_name,phone').eq('id',user.id).maybeSingle(),
+    supabaseClient.from('seller_stores').select('store_name,bio,avatar_url,cover_url').eq('seller_id',user.id).maybeSingle()
+  ]);
+  if(profileResult.error||storeResult.error){toast('تعذر تحميل بيانات المتجر.');return}
+  const profile=profileResult.data||{},store=storeResult.data||{};
+  form.elements.display_name.value=profile.display_name||'';
+  form.elements.phone.value=profile.phone||'';
+  form.elements.store_name.value=store.store_name||profile.display_name||'';
+  form.elements.bio.value=store.bio||'';
   form.onsubmit=async e=>{
     e.preventDefault();
+    const message=form.querySelector('.sellerProfileMessage');
     const display_name=form.elements.display_name.value.trim();
     const phone=form.elements.phone.value.trim();
-    if(display_name.length>60){form.querySelector('.sellerProfileMessage').textContent='الاسم يجب ألا يتجاوز 60 حرفًا.';return}
-    if(phone&&!/^[+0-9\\s()-]{8,20}$/.test(phone)){form.querySelector('.sellerProfileMessage').textContent='راجع رقم الهاتف.';return}
-    const {error:saveError}=await supabaseClient.from('profiles').upsert({id:currentSession.user.id,display_name:display_name||null,phone:phone||null,updated_at:new Date().toISOString()},{onConflict:'id'});
-    if(saveError){form.querySelector('.sellerProfileMessage').textContent='تعذر الحفظ: '+saveError.message;return}
-    toast('تم حفظ بيانات ملفك الشخصي.');
-    dialog.close();
+    const store_name=form.elements.store_name.value.trim();
+    const bio=form.elements.bio.value.trim();
+    const avatar=form.elements.avatar.files[0]||null;
+    const cover=form.elements.cover.files[0]||null;
+    if(phone&&!/^[+0-9\\s()-]{8,20}$/.test(phone)){message.textContent='راجع رقم الهاتف.';return}
+    if(!store_name){message.textContent='اكتب اسم المتجر.';return}
+    if(bio.length>500){message.textContent='النبذة يجب ألا تتجاوز 500 حرف.';return}
+    const files=[avatar,cover].filter(Boolean);
+    if(files.some(file=>file.size>3*1024*1024)){message.textContent='حجم كل صورة يجب ألا يتجاوز 3 ميجابايت.';return}
+    if(files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type))){message.textContent='اختر صور JPG أو PNG أو WebP فقط.';return}
+    const uploadStoreImage=async(file,label)=>{
+      if(!file)return null;
+      const path=user.id+'/store/'+Date.now()+'-'+label+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      const result=await supabaseClient.storage.from('listing-images').upload(path,file);
+      if(result.error)throw result.error;
+      return supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+    };
+    message.textContent='جاري حفظ البيانات والصور...';
+    try{
+      const avatarUrl=await uploadStoreImage(avatar,'avatar');
+      const coverUrl=await uploadStoreImage(cover,'cover');
+      const {error:profileError}=await supabaseClient.from('profiles').upsert({id:user.id,display_name:display_name||null,phone:phone||null,updated_at:new Date().toISOString()},{onConflict:'id'});
+      if(profileError)throw profileError;
+      const storePayload={seller_id:user.id,store_name,bio:bio||null,updated_at:new Date().toISOString()};
+      if(avatarUrl)storePayload.avatar_url=avatarUrl;
+      else if(store.avatar_url)storePayload.avatar_url=store.avatar_url;
+      if(coverUrl)storePayload.cover_url=coverUrl;
+      else if(store.cover_url)storePayload.cover_url=store.cover_url;
+      const {error:storeError}=await supabaseClient.from('seller_stores').upsert(storePayload,{onConflict:'seller_id'});
+      if(storeError)throw storeError;
+      toast('تم حفظ بيانات المتجر بنجاح.');
+      dialog.close();
+    }catch(error){
+      message.textContent='تعذر الحفظ: '+(error.message||'حدث خطأ غير متوقع');
+    }
   };
   if(!dialog.open)dialog.showModal();
 }
@@ -74,16 +111,24 @@ async function showSellerStore(sellerId){
     dialog.className='sellerStoreDialog';
     document.body.appendChild(dialog);
   }
-  dialog.innerHTML='<div class="sellerStoreHead"><div><small>AVQENZA MARKETPLACE</small><h2>متجر البائع</h2><p>الإعلانات المنشورة لهذا البائع</p></div><button type="button" class="sellerStoreClose">×</button></div><div class="sellerStoreBody"><div class="empty">جاري تحميل إعلانات المتجر...</div></div>';
+  dialog.innerHTML='<div class="sellerStoreHead"><div><small>AVQENZA MARKETPLACE</small><h2>متجر البائع</h2><p>جاري تحميل بيانات المتجر...</p></div><button type="button" class="sellerStoreClose">×</button></div><div class="sellerStoreBody"><div class="empty">جاري تحميل إعلانات المتجر...</div></div>';
   dialog.querySelector('.sellerStoreClose').onclick=()=>dialog.close();
   if(!dialog.open)dialog.showModal();
-  const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id')
-    .eq('seller_id',sellerId).eq('status','approved')
-    .order('created_at',{ascending:false}).limit(40);
+  const [storeResult,listingsResult]=await Promise.all([
+    supabaseClient.from('seller_stores').select('store_name,bio,avatar_url,cover_url').eq('seller_id',sellerId).maybeSingle(),
+    supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40)
+  ]);
   const body=dialog.querySelector('.sellerStoreBody');
-  if(error){body.innerHTML='<div class="empty">تعذر تحميل المتجر حاليًا.</div>';return}
-  if(!data?.length){body.innerHTML='<div class="empty">لا توجد إعلانات منشورة لهذا البائع حاليًا.</div>';return}
+  if(listingsResult.error||storeResult.error){body.innerHTML='<div class="empty">تعذر تحميل المتجر حاليًا.</div>';return}
+  const store=storeResult.data||{};
+  const name=store.store_name||'متجر البائع';
+  const cover=store.cover_url?'<img class="sellerStoreCover" src="'+escapeHtml(store.cover_url)+'" alt="غلاف المتجر">':'<div class="sellerStoreCover sellerStoreCoverEmpty"></div>';
+  const avatar=store.avatar_url?'<img class="sellerStoreAvatar" src="'+escapeHtml(store.avatar_url)+'" alt="'+escapeHtml(name)+'">':'<div class="sellerStoreAvatar sellerStoreAvatarEmpty">AV</div>';
+  const head=dialog.querySelector('.sellerStoreHead');
+  head.outerHTML='<div class="sellerStoreHero">'+cover+'<div class="sellerStoreIdentity">'+avatar+'<div><small>AVQENZA MARKETPLACE</small><h2>'+escapeHtml(name)+'</h2><p>'+escapeHtml(store.bio||'متجر على منصة AVQENZA')+'</p></div><button type="button" class="sellerStoreClose">×</button></div></div>';
+  dialog.querySelector('.sellerStoreClose').onclick=()=>dialog.close();
+  if(!listingsResult.data?.length){body.innerHTML='<div class="empty">لا توجد إعلانات منشورة لهذا البائع حاليًا.</div>';return}
+  const data=listingsResult.data;
   body.innerHTML='<div class="sellerStoreStats"><strong>'+data.length.toLocaleString('ar-EG')+'</strong><span>إعلان منشور</span></div><div class="sellerStoreGrid"></div>';
   const grid=body.querySelector('.sellerStoreGrid');
   data.forEach(item=>{
