@@ -383,7 +383,7 @@ async function loadListings(){
       .replace(/[(),]/g,' ')
       .replace(/\s+/g,' ')
       .trim();
-    if(searchTerm)q=q.or(\`title.ilike.%\${searchTerm}%,description.ilike.%\${searchTerm}%\`);
+    if(searchTerm)q=q.or('title.ilike.%'+searchTerm+'%,description.ilike.%'+searchTerm+'%');
   }
   if(cat)q=q.eq('category',cat);
   if(city)q=q.ilike('city',`%${city}%`);
