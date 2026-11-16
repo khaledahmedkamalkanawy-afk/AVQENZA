@@ -259,7 +259,7 @@ async function loadMyListings(){
   box.innerHTML='<div class="empty">جاري تحميل إعلاناتك...</div>';
 
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,status')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status')
     .eq('seller_id',currentSession.user.id)
     .order('created_at',{ascending:false});
 
@@ -358,7 +358,16 @@ async function editMyListing(x){
   form.elements.price.value=x.price||0;
   form.elements.phone.value=x.phone||'';
   form.elements.city.value=x.city||'';
+  form.elements.condition.value=x.condition||'used';
   form.elements.image.value='';
+
+  const currentImages=Array.isArray(x.image_urls)&&x.image_urls.length
+    ? x.image_urls
+    : (x.image_url?[x.image_url]:[]);
+  const imageNote=form.querySelector('[data-current-images]');
+  if(imageNote)imageNote.textContent=currentImages.length
+    ? `الصور الحالية: ${currentImages.length} — الصور الجديدة ستُضاف إليها.`
+    : 'لا توجد صور حالية.';
 
   dialog.showModal();
 
@@ -370,10 +379,31 @@ async function editMyListing(x){
     const price=Number(form.elements.price.value);
     const phone=form.elements.phone.value.trim();
     const city=form.elements.city.value.trim();
-    const file=form.elements.image.files?.[0]||null;
+    const condition=form.elements.condition.value;
+    const files=Array.from(form.elements.image.files||[]);
 
     if(title.length<4||!description||!Number.isFinite(price)||price<0){
       toast('راجع البيانات وحاول مرة أخرى.');
+      return;
+    }
+
+    if(!['new','used'].includes(condition)){
+      toast('اختر حالة المنتج.');
+      return;
+    }
+
+    if(files.length+currentImages.length>5){
+      toast(`يمكن أن يحتوي الإعلان على 5 صور كحد أقصى. لديك ${currentImages.length} صور حالية.`);
+      return;
+    }
+
+    if(files.some(file=>file.size>5*1024*1024)){
+      toast('حجم كل صورة يجب ألا يتجاوز 5 ميجابايت.');
+      return;
+    }
+
+    if(files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type))){
+      toast('اختر صور JPG أو PNG أو WebP فقط.');
       return;
     }
 
@@ -383,28 +413,23 @@ async function editMyListing(x){
       return;
     }
 
-    let imageUrl=x.image_url;
+    const urls=[...currentImages];
+    const uploadedPaths=[];
 
-    if(file){
-      if(file.size>5*1024*1024){
-        toast('حجم الصورة يجب ألا يتجاوز 5 ميجابايت.');
-        return;
-      }
-
-      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
-        toast('اختر صورة JPG أو PNG أو WebP.');
-        return;
-      }
-
-      const path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+    for(let i=0;i<files.length;i++){
+      const file=files[i];
+      const path=`${user.id}/${Date.now()}-${i}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
       const up=await supabaseClient.storage.from('listing-images').upload(path,file);
 
       if(up.error){
+        if(uploadedPaths.length)await supabaseClient.storage.from('listing-images').remove(uploadedPaths);
         toast('تعذر رفع الصورة: '+up.error.message);
         return;
       }
 
-      imageUrl=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+      uploadedPaths.push(path);
+      const url=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+      urls.push(url);
     }
 
     const {error}=await supabaseClient.from('listings').update({
@@ -413,17 +438,20 @@ async function editMyListing(x){
       price,
       phone,
       city,
-      image_url:imageUrl,
+      condition,
+      image_url:urls[0]||null,
+      image_urls:urls,
       status:'pending'
     }).eq('id',x.id).eq('seller_id',user.id);
 
     if(error){
+      if(uploadedPaths.length)await supabaseClient.storage.from('listing-images').remove(uploadedPaths);
       toast('تعذر تعديل الإعلان: '+error.message);
       return;
     }
 
     dialog.close();
-    toast('تم التعديل، والإعلان بانتظار المراجعة.');
+    toast('تم حفظ التعديلات، والإعلان بانتظار المراجعة.');
     await loadMyListings();
     await loadListings();
   };
