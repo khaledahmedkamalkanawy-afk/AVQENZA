@@ -359,11 +359,14 @@ async function init(){
   updateAuthUI(data?.session||null);
   await loadFavoriteIds();
   await checkAdmin();
-  supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
+  supabaseClient.auth.onAuthStateChange((_event,session)=>{
     updateAuthUI(session);
-    await loadFavoriteIds();
-    await checkAdmin();
-    if(!$('favoritesSection')?.hasAttribute('hidden'))await loadMyFavorites();
+    // لا ننفذ طلبات Supabase داخل callback حتى لا نقفل Auth session lock.
+    Promise.resolve().then(async()=>{
+      await loadFavoriteIds();
+      await checkAdmin();
+      if(!$('favoritesSection')?.hasAttribute('hidden'))await loadMyFavorites();
+    }).catch(error=>console.error('Auth UI refresh error:',error));
   });
   await loadListings();
   await loadFeaturedListings();
