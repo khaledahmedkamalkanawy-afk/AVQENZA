@@ -111,15 +111,21 @@ async function showSellerStore(sellerId){
     dialog.className='sellerStoreDialog';
     document.body.appendChild(dialog);
   }
-  dialog.innerHTML='<div class="sellerStoreHead"><div><small>AVQENZA MARKETPLACE</small><h2>متجر البائع</h2><p>جاري تحميل بيانات المتجر...</p></div><button type="button" class="sellerStoreClose">×</button></div><div class="sellerStoreBody"><div class="empty">جاري تحميل إعلانات المتجر...</div></div>';
+  dialog.innerHTML='<div class="sellerStoreHead"><div><small>AVQENZA MARKETPLACE</small><h2>متجر البائع</h2><p>جاري تحميل بيانات المتجر...</p></div><button type="button" class="sellerStoreClose">×</button></div><div class="sellerStoreBody"><div class="empty">جاري تحميل المتجر...</div></div>';
   dialog.querySelector('.sellerStoreClose').onclick=()=>dialog.close();
   if(!dialog.open)dialog.showModal();
-  const [storeResult,listingsResult]=await Promise.all([
+
+  const [storeResult,listingsResult,reviewsResult]=await Promise.all([
     supabaseClient.from('seller_stores').select('store_name,bio,avatar_url,cover_url').eq('seller_id',sellerId).maybeSingle(),
-    supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40)
+    supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40),
+    supabaseClient.from('seller_reviews').select('rating,comment,created_at,reviewer_id',{count:'exact'}).eq('seller_id',sellerId).order('created_at',{ascending:false}).limit(1000)
   ]);
   const body=dialog.querySelector('.sellerStoreBody');
-  if(listingsResult.error||storeResult.error){body.innerHTML='<div class="empty">تعذر تحميل المتجر حاليًا.</div>';return}
+  if(listingsResult.error||storeResult.error||reviewsResult.error){
+    body.innerHTML='<div class="empty">تعذر تحميل المتجر أو تقييماته حاليًا.</div>';
+    return;
+  }
+
   const store=storeResult.data||{};
   const name=store.store_name||'متجر البائع';
   const cover=store.cover_url?'<img class="sellerStoreCover" src="'+escapeHtml(store.cover_url)+'" alt="غلاف المتجر">':'<div class="sellerStoreCover sellerStoreCoverEmpty"></div>';
@@ -127,11 +133,26 @@ async function showSellerStore(sellerId){
   const head=dialog.querySelector('.sellerStoreHead');
   head.outerHTML='<div class="sellerStoreHero">'+cover+'<div class="sellerStoreIdentity">'+avatar+'<div><small>AVQENZA MARKETPLACE</small><h2>'+escapeHtml(name)+'</h2><p>'+escapeHtml(store.bio||'متجر على منصة AVQENZA')+'</p></div><button type="button" class="sellerStoreClose">×</button></div></div>';
   dialog.querySelector('.sellerStoreClose').onclick=()=>dialog.close();
-  if(!listingsResult.data?.length){body.innerHTML='<div class="empty">لا توجد إعلانات منشورة لهذا البائع حاليًا.</div>';return}
-  const data=listingsResult.data;
-  body.innerHTML='<div class="sellerStoreStats"><strong>'+data.length.toLocaleString('ar-EG')+'</strong><span>إعلان منشور</span></div><div class="sellerStoreGrid"></div>';
+
+  const reviews=reviewsResult.data||[];
+  const reviewCount=reviewsResult.count??reviews.length;
+  const average=reviews.length?reviews.reduce((sum,item)=>sum+Number(item.rating||0),0)/reviews.length:0;
+  const stars=average?('★'.repeat(Math.round(average))+'☆'.repeat(5-Math.round(average))):'☆☆☆☆☆';
+  const alreadyReviewed=!!currentSession?.user&&reviews.some(item=>item.reviewer_id===currentSession.user.id);
+  const isOwner=currentSession?.user?.id===sellerId;
+  const reviewForm=currentSession?.user
+    ? (isOwner?'<p class="sellerReviewHint">لا يمكنك تقييم متجرك بنفسك.</p>'
+      : alreadyReviewed?'<p class="sellerReviewHint">سبق لك تقييم هذا المتجر. شكرًا لمشاركتك.</p>'
+      : '<form class="sellerReviewForm" id="sellerReviewForm"><h4>أضف تقييمك</h4><label>تقييمك بالنجوم</label><select name="rating" required><option value="5">5 نجوم - ممتاز</option><option value="4">4 نجوم - جيد جدًا</option><option value="3">3 نجوم - جيد</option><option value="2">نجمتان - مقبول</option><option value="1">نجمة - ضعيف</option></select><label>تعليقك</label><textarea name="comment" rows="3" maxlength="500" minlength="3" placeholder="اكتب تجربتك مع هذا البائع" required></textarea><button type="submit">إرسال التقييم</button><p class="sellerReviewMessage" aria-live="polite"></p></form>')
+    : '<p class="sellerReviewHint">سجّل الدخول لتقييم هذا المتجر.</p>';
+
+  const reviewItems=reviews.length
+    ? reviews.slice(0,8).map(item=>'<article class="sellerReviewItem"><div class="sellerReviewTop"><strong>عضو في AVQENZA</strong><span class="sellerReviewStars">'+('★'.repeat(Number(item.rating))+'☆'.repeat(5-Number(item.rating)))+'</span></div><p>'+escapeHtml(item.comment)+'</p><small>'+new Date(item.created_at).toLocaleDateString('ar-EG')+'</small></article>').join('')
+    : '<p class="sellerReviewHint">لا توجد تقييمات لهذا المتجر حتى الآن.</p>';
+
+  body.innerHTML='<div class="sellerStoreStats"><strong>'+((listingsResult.data||[]).length).toLocaleString('ar-EG')+'</strong><span>إعلان منشور</span><strong>'+average.toFixed(1)+'</strong><span>'+stars+' · '+reviewCount.toLocaleString('ar-EG')+' تقييم</span></div><section class="sellerReviews"><h3>تقييمات المتجر</h3>'+reviewForm+'<div class="sellerReviewList">'+reviewItems+'</div></section><div class="sellerStoreGrid"></div>';
   const grid=body.querySelector('.sellerStoreGrid');
-  data.forEach(item=>{
+  (listingsResult.data||[]).forEach(item=>{
     const card=document.createElement('article');
     card.className='item sellerStoreCard';
     const img=item.image_url||'';
@@ -141,6 +162,33 @@ async function showSellerStore(sellerId){
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,item.title));
     grid.appendChild(card);
   });
+  if(!listingsResult.data?.length)grid.innerHTML='<div class="empty">لا توجد إعلانات منشورة لهذا البائع حاليًا.</div>';
+
+  const reviewFormEl=body.querySelector('#sellerReviewForm');
+  if(reviewFormEl)reviewFormEl.onsubmit=async e=>{
+    e.preventDefault();
+    const message=reviewFormEl.querySelector('.sellerReviewMessage');
+    const submit=reviewFormEl.querySelector('button[type="submit"]');
+    const rating=Number(reviewFormEl.elements.rating.value);
+    const comment=reviewFormEl.elements.comment.value.trim();
+    if(!currentSession?.user){message.textContent='سجّل الدخول أولًا.';return}
+    if(!Number.isInteger(rating)||rating<1||rating>5||comment.length<3||comment.length>500){message.textContent='راجع التقييم والتعليق (من 3 إلى 500 حرف).';return}
+    submit.disabled=true;
+    message.textContent='جارٍ إرسال تقييمك...';
+    const {error}=await supabaseClient.from('seller_reviews').insert({
+      seller_id:sellerId,
+      reviewer_id:currentSession.user.id,
+      rating,
+      comment
+    });
+    if(error){
+      message.textContent=error.code==='23505'?'سبق لك تقييم هذا المتجر.':'تعذر إرسال التقييم: '+error.message;
+      submit.disabled=false;
+      return;
+    }
+    toast('تم إرسال تقييمك بنجاح.');
+    await showSellerStore(sellerId);
+  };
 }
 
 function showListingDetails(x){
