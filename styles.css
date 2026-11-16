@@ -1576,3 +1576,55 @@ body { background:#f4f6ff; }
   .item { border-radius:13px; }
   .itemBody { padding:10px; }
 }
+
+
+/* AVQENZA bold color identity: category surfaces and premium calls to action */
+.top { background:linear-gradient(105deg,#080d24 0%,#18245b 58%,#3b237d 100%); }
+.top .brand { letter-spacing:.4px;text-shadow:0 3px 18px #7b69ff70; }
+.top #addTop {
+  color:#17102e!important;
+  border:1px solid #ffe39a!important;
+  background:linear-gradient(115deg,#ffe08a,#ffb52e 58%,#ffdc75)!important;
+  box-shadow:0 7px 22px #ffbd3c55, inset 0 1px #fff8d8;
+  font-weight:900;
+}
+.top #addTop:hover { transform:translateY(-2px);filter:brightness(1.06); }
+.top #signupTop {
+  color:#fff;border:1px solid #8b9bff;
+  background:linear-gradient(115deg,#315cff,#7655f6);
+  box-shadow:0 6px 18px #5264e84a;
+}
+.top #favoritesTop { border-color:#ffffff55!important;background:#ffffff12!important; }
+#categories { padding-top:32px;padding-bottom:32px; }
+#categories .sectionHead > div > small { color:#fff;background:linear-gradient(100deg,#315cff,#7655f6); }
+#categories .cat { position:relative;isolation:isolate;overflow:hidden;border:1px solid transparent; }
+#categories .cat:nth-child(8n+1) { background:linear-gradient(145deg,#f0edff,#fff 72%);border-color:#dcd5ff; }
+#categories .cat:nth-child(8n+2) { background:linear-gradient(145deg,#e6fbff,#fff 72%);border-color:#c8f0f5; }
+#categories .cat:nth-child(8n+3) { background:linear-gradient(145deg,#fff5df,#fff 72%);border-color:#ffe6b4; }
+#categories .cat:nth-child(8n+4) { background:linear-gradient(145deg,#fff0f4,#fff 72%);border-color:#ffd5e1; }
+#categories .cat:nth-child(8n+5) { background:linear-gradient(145deg,#e9fbf4,#fff 72%);border-color:#c9efdf; }
+#categories .cat:nth-child(8n+6) { background:linear-gradient(145deg,#f1edff,#fff 72%);border-color:#ded4ff; }
+#categories .cat:nth-child(8n+7) { background:linear-gradient(145deg,#fff1e8,#fff 72%);border-color:#ffddc8; }
+#categories .cat:nth-child(8n+8) { background:linear-gradient(145deg,#eaf4ff,#fff 72%);border-color:#d2e6ff; }
+#categories .cat:after { content:"";position:absolute;z-index:-1;width:100px;height:100px;left:-36px;bottom:-48px;border-radius:50%;background:#7655f610; }
+#categories .cat:hover { transform:translateY(-8px);box-shadow:0 18px 35px #5145a52b; }
+#featured .sectionHead > div > small { color:#fff;background:linear-gradient(100deg,#f08b36,#e85c72); }
+#featured { border:1px solid #f2d9c5;background:linear-gradient(135deg,#fffaf5,#fff 62%,#fff7fb); }
+#listings .sectionHead > div > small { color:#fff;background:linear-gradient(100deg,#087f9c,#20b9c6); }
+#listings { border:1px solid #ccecf0;background:linear-gradient(135deg,#f4fdff,#fff 58%,#f8f6ff); }
+#featured .item,#listings .item { border-radius:19px;box-shadow:0 9px 25px #17214a12; }
+#featured .item:hover,#listings .item:hover { box-shadow:0 18px 38px #5145a52b; }
+#featured .detailsBtn,#listings .detailsBtn { background:linear-gradient(110deg,#315cff,#7655f6);color:#fff;border:0; }
+#featured .detailsBtn:hover,#listings .detailsBtn:hover { filter:brightness(1.1); }
+#how { border-top:4px solid transparent;border-image:linear-gradient(90deg,#24d4e8,#596dff,#a36aff,#ffc247) 1; }
+#how .steps article:nth-child(1) { background:linear-gradient(145deg,#eefaff,#fff);border-color:#ccecf5; }
+#how .steps article:nth-child(2) { background:linear-gradient(145deg,#f3efff,#fff);border-color:#ddd3ff; }
+#how .steps article:nth-child(3) { background:linear-gradient(145deg,#fff7e8,#fff);border-color:#ffe5b5; }
+#how .steps article:nth-child(1) b { background:linear-gradient(135deg,#08a8c8,#28d1d6); }
+#how .steps article:nth-child(2) b { background:linear-gradient(135deg,#5363ef,#9560ed); }
+#how .steps article:nth-child(3) b { background:linear-gradient(135deg,#f09a35,#f5c34f); }
+@media(max-width:650px) {
+  .top #addTop { box-shadow:0 5px 15px #ffbd3c55; }
+  #categories .cat { min-height:128px; }
+  #featured,#listings { padding:15px; }
+}
