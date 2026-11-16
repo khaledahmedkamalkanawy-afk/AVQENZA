@@ -371,8 +371,18 @@ async function loadListings(){
     .order('created_at',{ascending:false})
     .limit(40);
   const term=$('searchInput').value.trim(),cat=$('categoryFilter').value;
+  const city=$('cityFilter').value.trim(),condition=$('conditionFilter').value;
+  const minPrice=$('minPriceFilter').value,maxPrice=$('maxPriceFilter').value;
+  if(minPrice!==''&&maxPrice!==''&&Number(minPrice)>Number(maxPrice)){
+    grid.innerHTML='<div class="empty">السعر الأدنى لا يمكن أن يكون أكبر من السعر الأعلى.</div>';
+    return;
+  }
   if(term)q=q.ilike('title',`%${term}%`);
   if(cat)q=q.eq('category',cat);
+  if(city)q=q.ilike('city',`%${city}%`);
+  if(condition)q=q.eq('condition',condition);
+  if(minPrice!=='')q=q.gte('price',Number(minPrice));
+  if(maxPrice!=='')q=q.lte('price',Number(maxPrice));
   const {data,error}=await q;
   if(error){
     grid.innerHTML='<div class="empty">تعذر تحميل الإعلانات حاليًا. '+escapeHtml(error.message)+'</div>';
@@ -855,6 +865,19 @@ async function moderateListing(id,status){
 
 $('searchBtn').onclick=loadListings;
 $('refreshBtn').onclick=loadListings;
+$('clearSearchBtn').onclick=()=>{
+  $('searchInput').value='';
+  $('categoryFilter').value='';
+  $('cityFilter').value='';
+  $('minPriceFilter').value='';
+  $('maxPriceFilter').value='';
+  $('conditionFilter').value='';
+  loadListings();
+};
+['searchInput','cityFilter','minPriceFilter','maxPriceFilter'].forEach(id=>{
+  $(id).addEventListener('keydown',event=>{if(event.key==='Enter')loadListings();});
+});
+$('conditionFilter').addEventListener('change',loadListings);
 $('addTop').onclick=async()=>{
   if(!supabaseClient){toast('قاعدة البيانات غير متصلة.');return}
   const {data,error}=await supabaseClient.auth.getSession();
