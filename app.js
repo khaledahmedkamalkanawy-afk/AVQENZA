@@ -17,7 +17,8 @@ function toast(m){
   setTimeout(()=>$('toast').style.display='none',3500);
 }
 
-function urgentBadge(x){return x?.is_urgent?'<span class="urgentTag">⚡ عاجل</span>':'';}
+function isPromotionActive(flag,until){return !!flag&&(!until||new Date(until).getTime()>Date.now());}
+function urgentBadge(x){return isPromotionActive(x?.is_urgent,x?.urgent_until)?'<span class="urgentTag">⚡ عاجل</span>':'';}
 
 async function enrichSellerRatings(grid){
   if(!grid||!supabaseClient)return;
@@ -166,7 +167,7 @@ async function showSellerStore(sellerId){
 
   const [storeResult,listingsResult,reviewsResult]=await Promise.all([
     supabaseClient.from('seller_stores').select('store_name,bio,avatar_url,cover_url,is_verified').eq('seller_id',sellerId).maybeSingle(),
-    supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40),
+    supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40),
     supabaseClient.from('seller_reviews').select('rating,comment,created_at,reviewer_id',{count:'exact'}).eq('seller_id',sellerId).order('created_at',{ascending:false}).limit(1000)
   ]);
   const body=dialog.querySelector('.sellerStoreBody');
@@ -429,7 +430,7 @@ async function loadListings(){
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
   if(resultCount)resultCount.textContent='جاري البحث عن الإعلانات...';
   let q=supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent',{count:'exact'})
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until,views_count',{count:'exact'})
     .eq('status','approved')
     .limit(40);
   const term=$('searchInput').value.trim(),cat=$('categoryFilter').value;
@@ -548,9 +549,10 @@ async function loadFeaturedListings(){
 
   const {data,error}=await supabaseClient
     .from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until')
     .eq('status','approved')
-    .eq('is_featured',true)
+     .eq('is_featured',true)
+    .or('featured_until.is.null,featured_until.gt.'+new Date().toISOString())
     .order('created_at',{ascending:false})
     .limit(4);
 
@@ -611,6 +613,7 @@ async function loadUrgentListings(){
   const {data,error}=await supabaseClient.from('listings')
     .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent')
     .eq('status','approved').eq('is_urgent',true)
+    .or('urgent_until.is.null,urgent_until.gt.'+new Date().toISOString())
     .order('created_at',{ascending:false}).limit(6);
   if(error){grid.innerHTML='<div class="empty">تعذر تحميل الإعلانات العاجلة حاليًا.</div>';console.error(error);return;}
   grid.innerHTML='';
@@ -708,7 +711,7 @@ async function loadPopularListings(){
   if(!grid||!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الأكثر مشاهدة...</div>';
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,category,image_url,image_urls,condition,status,created_at,seller_id,views_count,is_urgent')
+    .select('id,title,description,price,city,category,image_url,image_urls,condition,status,created_at,seller_id,views_count,is_urgent,featured_until,urgent_until')
     .eq('status','approved').gt('views_count',0)
     .order('views_count',{ascending:false}).order('created_at',{ascending:false}).limit(6);
   if(error){grid.innerHTML='<div class="empty">تعذر تحميل الأكثر مشاهدة حاليًا.</div>';console.error(error);return;}
@@ -1161,7 +1164,7 @@ async function loadAdminAllListings(){
   box.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
 
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,price,city,category,status,created_at,is_featured,is_urgent')
+    .select('id,title,price,city,category,status,created_at,is_featured,is_urgent,featured_until,urgent_until')
     .order('created_at',{ascending:false})
     .limit(100);
 
@@ -1193,9 +1196,9 @@ async function loadAdminAllListings(){
         <small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small>
         <p>الحالة: ${statusNames[x.status]||escapeHtml(x.status)}</p>
         ${x.status==='approved'?`
-  <p>${x.is_featured?'⭐ إعلان مميز':'إعلان عادي'} · ${x.is_urgent?'⚡ عاجل':'عادي'}</p>
-  <button data-featured="true">${x.is_featured?'إلغاء التمييز':'تمييز الإعلان ⭐'}</button>
-  <button data-urgent="true">${x.is_urgent?'إلغاء العاجل':'جعله عاجلًا ⚡'}</button>
+  <p>${isPromotionActive(x.is_featured,x.featured_until)?'⭐ إعلان مميز':'إعلان عادي'} · ${isPromotionActive(x.is_urgent,x.urgent_until)?'⚡ عاجل':'عادي'}</p>
+  <button data-featured="true">${isPromotionActive(x.is_featured,x.featured_until)?'إلغاء التمييز':'تمييز الإعلان ⭐'}</button>
+  <button data-urgent="true">${isPromotionActive(x.is_urgent,x.urgent_until)?'إلغاء العاجل':'جعله عاجلًا ⚡'}</button>
 `:''}
         ${x.status==='pending'?`
           <button data-action="approved">اعتماد الإعلان</button>
@@ -1206,8 +1209,8 @@ async function loadAdminAllListings(){
     el.querySelectorAll('button[data-action]').forEach(btn=>{
       btn.onclick=()=>moderateListing(x.id,btn.dataset.action);
     });
-    el.querySelector('button[data-featured]')?.addEventListener('click',()=>toggleFeaturedListing(x.id,x.is_featured));
-    el.querySelector('button[data-urgent]')?.addEventListener('click',()=>toggleUrgentListing(x.id,x.is_urgent));
+    el.querySelector('button[data-featured]')?.addEventListener('click',()=>toggleFeaturedListing(x.id,isPromotionActive(x.is_featured,x.featured_until)));
+    el.querySelector('button[data-urgent]')?.addEventListener('click',()=>toggleUrgentListing(x.id,isPromotionActive(x.is_urgent,x.urgent_until)));
 
 box.appendChild(el);
   });
@@ -1218,7 +1221,7 @@ async function toggleFeaturedListing(id,currentValue){
 
   const {error}=await supabaseClient
     .from('listings')
-    .update({is_featured:!currentValue})
+    .update({is_featured:!currentValue,featured_until:null})
     .eq('id',id)
     .eq('status','approved');
 
@@ -1234,7 +1237,7 @@ async function toggleFeaturedListing(id,currentValue){
 }
 async function toggleUrgentListing(id,currentValue){
   if(!isAdmin)return;
-  const {error}=await supabaseClient.from('listings').update({is_urgent:!currentValue}).eq('id',id).eq('status','approved');
+  const {error}=await supabaseClient.from('listings').update({is_urgent:!currentValue,urgent_until:null}).eq('id',id).eq('status','approved');
   if(error){toast('تعذر تحديث حالة الإعلان العاجل: '+error.message);return;}
   toast(!currentValue?'تم تفعيل شارة الإعلان العاجل ⚡':'تم إلغاء شارة الإعلان العاجل.');
   await Promise.all([loadAdminAllListings(),loadListings(),loadFeaturedListings(),loadTodayListings(),loadPopularListings(),loadCuratedListings()]);
