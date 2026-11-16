@@ -690,6 +690,54 @@ async function loadPendingListings(){
   });
 }
 // قسم إعلاناتي
+function openPromotionDialog(listing){
+  if(!currentSession?.user){$('authDialog').showModal();return;}
+  if(listing.status!=='approved'){toast('يمكن ترقية الإعلان بعد نشره واعتماده فقط.');return;}
+  let dialog=$('promotionDialog');
+  if(!dialog){dialog=document.createElement('dialog');dialog.id='promotionDialog';dialog.className='dialogForm';document.body.appendChild(dialog);}
+  dialog.innerHTML=\`
+    <form id="promotionForm" class="dialogForm">
+      <button type="button" class="x" id="closePromotion">×</button>
+      <h2>ترقية إعلانك ⭐</h2>
+      <p><strong>\${escapeHtml(listing.title)}</strong></p>
+      <label>اختر الباقة</label>
+      <select name="plan" required>
+        <option value="featured_7d">إعلان مميز — 7 أيام — 49 جنيه</option>
+        <option value="urgent_3d">إعلان عاجل — 3 أيام — 29 جنيه</option>
+        <option value="featured_urgent_7d">مميز + عاجل — 7 أيام — 69 جنيه</option>
+      </select>
+      <div class="promotionPaymentInfo">
+        <strong>الدفع عبر اتصالات كاش (e&amp; Cash)</strong>
+        <p>حوّل المبلغ الخاص بالباقة إلى رقم المحفظة التالي:</p>
+        <strong class="promotionWallet">01132881795</strong>
+        <p>بعد التحويل، اكتب رقم العملية أو مرجع التحويل بالأسفل. لن يتم التفعيل إلا بعد مراجعة وصول المبلغ من الإدارة.</p>
+      </div>
+      <label>رقم العملية / مرجع التحويل</label>
+      <input name="reference" maxlength="100" required placeholder="اكتب رقم العملية الموجود في رسالة التحويل">
+      <button type="submit">إرسال طلب الترقية</button>
+      <p id="promotionMsg" role="status"></p>
+    </form>\`;
+  $('closePromotion').onclick=()=>dialog.close();
+  const form=$('promotionForm');
+  form.onsubmit=async(e)=>{
+    e.preventDefault();
+    const submit=form.querySelector('button[type="submit"]');
+    const reference=form.elements.reference.value.trim();
+    if(reference.length<3){$('promotionMsg').textContent='اكتب مرجع التحويل بشكل صحيح.';return;}
+    submit.disabled=true;submit.textContent='جارٍ إرسال الطلب...';
+    const {error}=await supabaseClient.from('promotion_requests').insert({
+      seller_id:currentSession.user.id,listing_id:listing.id,plan_key:form.elements.plan.value,
+      amount_egp:1,duration_days:1,payment_method:'etisalat_cash',transfer_reference:reference
+    });
+    submit.disabled=false;submit.textContent='إرسال طلب الترقية';
+    if(error){$('promotionMsg').textContent=error.code==='23505'?'يوجد بالفعل طلب ترقية مفتوح لهذا الإعلان.':'تعذر إرسال الطلب: '+error.message;return;}
+    $('promotionMsg').textContent='تم استلام طلبك، وسيتم تفعيله بعد مراجعة التحويل.';
+    toast('تم إرسال طلب الترقية للإدارة.');
+    setTimeout(()=>dialog.close(),1200);
+  };
+  dialog.showModal();
+}
+
 async function loadMyListings(){
   const box=$('myListings');
   if(!supabaseClient||!currentSession?.user)return;
@@ -721,12 +769,14 @@ async function loadMyListings(){
         <p>${escapeHtml(x.description||'')}</p>
         <small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small>
         <p>الحالة: ${escapeHtml(x.status)}</p>
+        ${x.status==='approved'?'<button class="promoteMyAd">ترقية الإعلان ⭐</button>':''}
         <button class="editMyAd">تعديل الإعلان</button>
         <button class="deleteMyAd outline">حذف الإعلان</button>
         <input class="changeMyAdImage" type="file" accept="image/jpeg,image/png,image/webp" multiple>
       </div>`;
 
     el.querySelector('.editMyAd').onclick=()=>editMyListing(x);
+    el.querySelector('.promoteMyAd')?.addEventListener('click',()=>openPromotionDialog(x));
         el.querySelector('.changeMyAdImage').onchange=async(e)=>{
   const files=Array.from(e.target.files||[]);
   if(!files.length)return;
@@ -1031,7 +1081,8 @@ async function loadAdminDashboard(){
   loadAdminAllListings(),
   loadAdminReports(),
   loadPendingListings(),
-  loadAdminUsers()
+  loadAdminUsers(),
+  loadPromotionRequests()
 ]);
 }
 
@@ -1117,6 +1168,40 @@ async function toggleUrgentListing(id,currentValue){
   if(error){toast('تعذر تحديث حالة الإعلان العاجل: '+error.message);return;}
   toast(!currentValue?'تم تفعيل شارة الإعلان العاجل ⚡':'تم إلغاء شارة الإعلان العاجل.');
   await Promise.all([loadAdminAllListings(),loadListings(),loadFeaturedListings(),loadTodayListings(),loadPopularListings(),loadCuratedListings()]);
+}
+
+async function loadPromotionRequests(){
+  const box=$('adminPromotionRequests');
+  if(!box||!isAdmin)return;
+  box.innerHTML='<div class="empty">جاري تحميل طلبات الترقية...</div>';
+  const {data,error}=await supabaseClient.from('promotion_requests')
+    .select('id,plan_key,amount_egp,duration_days,transfer_reference,created_at,listing_id,seller_id,listings(title)')
+    .eq('status','under_review').order('created_at',{ascending:false});
+  if(error){box.innerHTML='<div class="empty">تعذر تحميل طلبات الترقية: '+escapeHtml(error.message)+'</div>';return;}
+  if(!data?.length){box.innerHTML='<div class="empty">لا توجد طلبات ترقية قيد المراجعة.</div>';return;}
+  const labels={featured_7d:'إعلان مميز — 7 أيام',urgent_3d:'إعلان عاجل — 3 أيام',featured_urgent_7d:'مميز + عاجل — 7 أيام'};
+  box.innerHTML='';
+  data.forEach(r=>{
+    const card=document.createElement('article');card.className='item';
+    card.innerHTML=\`<div class="itemBody">
+      <h3>\${escapeHtml(r.listings?.title||'إعلان غير متاح')}</h3>
+      <p>\${escapeHtml(labels[r.plan_key]||r.plan_key)} · \${Number(r.amount_egp).toLocaleString('ar-EG')} جنيه</p>
+      <p>وسيلة الدفع: اتصالات كاش</p>
+      <p>مرجع التحويل: <strong>\${escapeHtml(r.transfer_reference||'غير مسجل')}</strong></p>
+      <small>تاريخ الطلب: \${new Date(r.created_at).toLocaleString('ar-EG')}</small>
+      <div class="promotionAdminActions"><button data-promo-approve>تأكيد الدفع وتفعيل الباقة</button><button class="outline" data-promo-reject>رفض الطلب</button></div>
+    </div>\`;
+    card.querySelector('[data-promo-approve]').onclick=()=>reviewPromotionRequest(r.id,true);
+    card.querySelector('[data-promo-reject]').onclick=()=>reviewPromotionRequest(r.id,false);
+    box.appendChild(card);
+  });
+}
+async function reviewPromotionRequest(id,approve){
+  if(!isAdmin)return;
+  const {error}=await supabaseClient.rpc('review_promotion_request',{p_request_id:id,p_approve:approve});
+  if(error){toast('تعذر مراجعة الطلب: '+error.message);return;}
+  toast(approve?'تم تأكيد الدفع وتفعيل الباقة.':'تم رفض طلب الترقية.');
+  await Promise.all([loadPromotionRequests(),loadAdminAllListings(),loadListings(),loadFeaturedListings(),loadTodayListings(),loadPopularListings(),loadCuratedListings(),loadUrgentListings()]);
 }
 
 async function loadAdminUsers(){
