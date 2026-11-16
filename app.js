@@ -359,6 +359,7 @@ async function init(){
   });
   await loadListings();
   await loadFeaturedListings();
+  await loadUrgentListings();
   await loadCuratedListings();
   await loadTodayListings();
   await loadPopularListings();
@@ -538,6 +539,34 @@ async function loadFeaturedListings(){
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
     if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
 
+    grid.appendChild(card);
+  });
+}
+async function loadUrgentListings(){
+  const grid=$('urgentGrid');
+  if(!grid||!supabaseClient)return;
+  grid.innerHTML='<div class="empty">جاري تحميل الإعلانات العاجلة...</div>';
+  const {data,error}=await supabaseClient.from('listings')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent')
+    .eq('status','approved').eq('is_urgent',true)
+    .order('created_at',{ascending:false}).limit(6);
+  if(error){grid.innerHTML='<div class="empty">تعذر تحميل الإعلانات العاجلة حاليًا.</div>';console.error(error);return;}
+  grid.innerHTML='';
+  if(!data?.length){grid.innerHTML='<div class="empty">لا توجد إعلانات عاجلة حاليًا. تابعنا لاكتشاف الإعلانات ذات الأولوية.</div>';return;}
+  data.forEach(x=>{
+    const card=document.createElement('article');card.className='item';
+    const img=x.image_url||'';
+    const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
+    const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
+    const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
+    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
+    const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
+    const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
+    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="urgentPriorityTag">أولوية</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
+    card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+    addFavoriteControl(card,x);
+    card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
+    if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
 }
