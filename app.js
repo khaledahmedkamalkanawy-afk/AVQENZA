@@ -17,6 +17,8 @@ function toast(m){
   setTimeout(()=>$('toast').style.display='none',3500);
 }
 
+function urgentBadge(x){return x?.is_urgent?'<span class="urgentTag">⚡ عاجل</span>':'';}
+
 function escapeHtml(s){
   return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -118,7 +120,7 @@ async function showSellerStore(sellerId){
 
   const [storeResult,listingsResult,reviewsResult]=await Promise.all([
     supabaseClient.from('seller_stores').select('store_name,bio,avatar_url,cover_url').eq('seller_id',sellerId).maybeSingle(),
-    supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40),
+    supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40),
     supabaseClient.from('seller_reviews').select('rating,comment,created_at,reviewer_id',{count:'exact'}).eq('seller_id',sellerId).order('created_at',{ascending:false}).limit(1000)
   ]);
   const body=dialog.querySelector('.sellerStoreBody');
@@ -245,6 +247,7 @@ function showListingDetails(x){
         <div class="detailMeta"><span>${escapeHtml(x.category||'إعلان')}</span><span>${escapeHtml(x.city||'الموقع غير محدد')}</span></div>
         <h2>${escapeHtml(x.title)}</h2>
         <div class="detailPrice">${price}</div>
+        ${urgentBadge(x)}
         <button type="button" id="detailFavoriteToggle" class="favoriteToggle${favoriteIds.has(x.id)?' isFavorite':''}" data-listing-id="${escapeHtml(x.id)}" aria-pressed="${String(favoriteIds.has(x.id))}">${favoriteIds.has(x.id)?'♥ محفوظ':'♡ أضف للمفضلة'}</button>
         <div class="detailFacts">
           <div><small>حالة المنتج</small><strong>${conditionLabel}</strong></div>
@@ -368,7 +371,7 @@ async function loadListings(){
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
   if(resultCount)resultCount.textContent='جاري البحث عن الإعلانات...';
   let q=supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count',{count:'exact'})
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent',{count:'exact'})
     .eq('status','approved')
     .limit(40);
   const term=$('searchInput').value.trim(),cat=$('categoryFilter').value;
@@ -411,14 +414,14 @@ async function loadListings(){
     $('emptyClearFilters')?.addEventListener('click',()=>$('clearSearchBtn').click());
 
     let suggestionsQuery=supabaseClient.from('listings')
-      .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+      .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent')
       .eq('status','approved');
     if(cat)suggestionsQuery=suggestionsQuery.eq('category',cat);
     let {data:suggestions,error:suggestionsError}=await suggestionsQuery
       .order('created_at',{ascending:false}).limit(4);
     if((suggestionsError||!suggestions?.length)&&cat){
       const fallback=await supabaseClient.from('listings')
-        .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+        .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent')
         .eq('status','approved').order('created_at',{ascending:false}).limit(4);
       suggestions=fallback.data||[];
       suggestionsError=fallback.error;
@@ -435,7 +438,7 @@ async function loadListings(){
         const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
         const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
         const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-        card.innerHTML=`<div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}</div><div class="itemBody"><h3>${escapeHtml(x.title)}</h3><div class="price">${price}</div><p>${escapeHtml(x.description||'')}</p><small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small><div style="margin-top:12px"><button type="button" class="detailsBtn">عرض التفاصيل</button></div></div>`;
+        card.innerHTML=`<div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div><div class="itemBody"><h3>${escapeHtml(x.title)}</h3><div class="price">${price}</div><p>${escapeHtml(x.description||'')}</p><small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small><div style="margin-top:12px"><button type="button" class="detailsBtn">عرض التفاصيل</button></div></div>`;
         card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
         addFavoriteControl(card,x);
         card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
@@ -458,7 +461,7 @@ async function loadListings(){
     const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
 
     card.innerHTML=`
-      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}</div>
+      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div>
       <div class="itemBody">
         <h3>${escapeHtml(x.title)}</h3>
         <div class="price">${price}</div>
@@ -484,7 +487,7 @@ async function loadFeaturedListings(){
 
   const {data,error}=await supabaseClient
     .from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent')
     .eq('status','approved')
     .eq('is_featured',true)
     .order('created_at',{ascending:false})
@@ -518,7 +521,7 @@ async function loadFeaturedListings(){
     const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
 
     card.innerHTML=`
-      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}</div>
+      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div>
       <div class="itemBody">
         <h3>${escapeHtml(x.title)}</h3>
         <div class="price">${price}</div>
@@ -543,7 +546,7 @@ async function loadCuratedListings(){
   if(!grid||!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تجهيز اختياراتنا...</div>';
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent')
     .eq('status','approved')
     .order('views_count',{ascending:false})
     .order('created_at',{ascending:false})
@@ -566,7 +569,7 @@ async function loadCuratedListings(){
     const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
-    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+'<span class="curatedTag">اختيار مميز</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">اكتشف الإعلان</button></div>';
+    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="curatedTag">اختيار مميز</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">اكتشف الإعلان</button></div>';
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
     addFavoriteControl(card,x);
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
@@ -580,7 +583,7 @@ async function loadTodayListings(){
   grid.innerHTML='<div class="empty">جاري تحميل إعلانات اليوم...</div>';
   const start=new Date(); start.setHours(0,0,0,0);
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent')
     .eq('status','approved').gte('created_at',start.toISOString())
     .order('created_at',{ascending:false}).limit(6);
   if(error){grid.innerHTML='<div class="empty">تعذر تحميل إعلانات اليوم حاليًا.</div>';console.error(error);return;}
@@ -595,7 +598,7 @@ async function loadTodayListings(){
     const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
-    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+'<span class="todayTag">اليوم</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
+    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="todayTag">اليوم</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
     addFavoriteControl(card,x);
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
@@ -608,7 +611,7 @@ async function loadPopularListings(){
   if(!grid||!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الأكثر مشاهدة...</div>';
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+    .select('id,title,description,price,city,category,image_url,image_urls,condition,status,created_at,seller_id,views_count,is_urgent')
     .eq('status','approved').gt('views_count',0)
     .order('views_count',{ascending:false}).order('created_at',{ascending:false}).limit(6);
   if(error){grid.innerHTML='<div class="empty">تعذر تحميل الأكثر مشاهدة حاليًا.</div>';console.error(error);return;}
@@ -623,7 +626,7 @@ async function loadPopularListings(){
     const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
-    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+'<span class="popularViewCount">◉ '+Number(x.views_count).toLocaleString('ar-EG')+' مشاهدة</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
+    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="popularViewCount">◉ '+Number(x.views_count).toLocaleString('ar-EG')+' مشاهدة</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
     addFavoriteControl(card,x);
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
@@ -1008,7 +1011,7 @@ async function loadAdminAllListings(){
   box.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
 
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,price,city,category,status,created_at,is_featured')
+    .select('id,title,price,city,category,status,created_at,is_featured,is_urgent')
     .order('created_at',{ascending:false})
     .limit(100);
 
@@ -1040,10 +1043,9 @@ async function loadAdminAllListings(){
         <small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small>
         <p>الحالة: ${statusNames[x.status]||escapeHtml(x.status)}</p>
         ${x.status==='approved'?`
-  <p>${x.is_featured?'⭐ إعلان مميز':'إعلان عادي'}</p>
-  <button data-featured="true">
-    ${x.is_featured?'إلغاء التمييز':'تمييز الإعلان ⭐'}
-  </button>
+  <p>${x.is_featured?'⭐ إعلان مميز':'إعلان عادي'} · ${x.is_urgent?'⚡ عاجل':'عادي'}</p>
+  <button data-featured="true">${x.is_featured?'إلغاء التمييز':'تمييز الإعلان ⭐'}</button>
+  <button data-urgent="true">${x.is_urgent?'إلغاء العاجل':'جعله عاجلًا ⚡'}</button>
 `:''}
         ${x.status==='pending'?`
           <button data-action="approved">اعتماد الإعلان</button>
@@ -1054,9 +1056,8 @@ async function loadAdminAllListings(){
     el.querySelectorAll('button[data-action]').forEach(btn=>{
       btn.onclick=()=>moderateListing(x.id,btn.dataset.action);
     });
-    el.querySelector('button[data-featured]')?.addEventListener('click',()=>{
-  toggleFeaturedListing(x.id,x.is_featured);
-});
+    el.querySelector('button[data-featured]')?.addEventListener('click',()=>toggleFeaturedListing(x.id,x.is_featured));
+    el.querySelector('button[data-urgent]')?.addEventListener('click',()=>toggleUrgentListing(x.id,x.is_urgent));
 
 box.appendChild(el);
   });
@@ -1081,6 +1082,14 @@ async function toggleFeaturedListing(id,currentValue){
   await loadFeaturedListings();
   await loadListings();
 }
+async function toggleUrgentListing(id,currentValue){
+  if(!isAdmin)return;
+  const {error}=await supabaseClient.from('listings').update({is_urgent:!currentValue}).eq('id',id).eq('status','approved');
+  if(error){toast('تعذر تحديث حالة الإعلان العاجل: '+error.message);return;}
+  toast(!currentValue?'تم تفعيل شارة الإعلان العاجل ⚡':'تم إلغاء شارة الإعلان العاجل.');
+  await Promise.all([loadAdminAllListings(),loadListings(),loadFeaturedListings(),loadTodayListings(),loadPopularListings(),loadCuratedListings()]);
+}
+
 async function loadAdminUsers(){
   const box=$('adminUsers');
   if(!box)return;
