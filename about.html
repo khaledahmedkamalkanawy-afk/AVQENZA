@@ -1,57 +1,116 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عن AVQENZA - أفكينزا</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="تعرف على AVQENZA أفكينزا، منصة الإعلانات المبوبة في مصر للبيع والشراء والتواصل المباشر بين البائع والمشتري.">
+  <meta name="theme-color" content="#101827">
+  <title>عن AVQENZA | أفكينزا</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f6fa;
-      margin: 0;
-      padding: 20px;
-      color: #222;
-      line-height: 1.9;
+    :root{font-family:"Cairo",sans-serif;color:#172033;background:#f5f7fb;font-synthesis:none}
+    *{box-sizing:border-box}
+    body{margin:0;line-height:1.9}
+    a{color:inherit;text-decoration:none}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px max(5%,calc((100% - 1120px)/2));background:#101827;color:#fff}
+    .brand{display:flex;flex-direction:column;color:#ffd36f;font-size:25px;font-weight:900;line-height:1.2}
+    .brand span{color:#b9c7e2;font-size:11px;font-weight:600}
+    .topLinks{display:flex;align-items:center;gap:20px;color:#e0e7f5;font-size:13px;font-weight:700}
+    .topLinks a:hover,.backLink:hover{color:#ffd36f}
+    .hero{padding:65px 20px 75px;background:linear-gradient(120deg,#101827,#1b3260 62%,#343078);color:#fff;text-align:center}
+    .eyebrow{display:inline-block;margin:0 0 10px;padding:5px 13px;border:1px solid #ffffff35;border-radius:30px;color:#ffdc91;font-size:12px;font-weight:800}
+    h1{margin:0;font-size:clamp(30px,5vw,46px);line-height:1.45}
+    .hero p:last-child{max-width:680px;margin:12px auto 0;color:#d7e0f0;font-size:16px}
+    main{width:min(100% - 36px,1000px);margin:-30px auto 55px;position:relative}
+    .intro{padding:28px 30px;border:1px solid #e5eaf2;border-radius:20px;background:#fff;box-shadow:0 14px 40px #14213d12}
+    .intro h2,.section h2{margin:0 0 10px;color:#172b50;font-size:22px}
+    .intro p,.section p{margin:0;color:#5d687b}
+    .section{margin-top:22px;padding:26px 28px;border:1px solid #e5eaf2;border-radius:18px;background:#fff}
+    .featureGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:18px}
+    .feature{display:flex;align-items:flex-start;gap:12px;padding:15px;border:1px solid #e8edf5;border-radius:14px;background:#fbfcff}
+    .featureIcon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:#eef2ff;color:#4254b5;font-size:19px;font-weight:900}
+    .feature strong{display:block;color:#243452;font-size:14px}
+    .feature small{display:block;margin-top:3px;color:#667085;font-size:12px;line-height:1.8}
+    .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:18px}
+    .step{padding:17px;border-radius:14px;background:#f7f9fd;border:1px solid #e8edf5}
+    .step b{display:block;color:#4262bd;font-size:13px}
+    .step strong{display:block;margin:5px 0;color:#243452}
+    .step p{font-size:12px}
+    .note{margin-top:18px;padding:14px 16px;border-right:4px solid #d8a83f;border-radius:10px;background:#fff9e9;color:#66501d;font-size:13px}
+    .cta{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:22px;padding:23px 25px;border-radius:18px;background:linear-gradient(110deg,#eaf1ff,#f3efff)}
+    .cta strong{display:block;color:#1b2c50;font-size:18px}
+    .cta p{margin:3px 0 0;color:#667085;font-size:13px}
+    .cta a{flex:0 0 auto;padding:11px 18px;border-radius:11px;background:#245bb4;color:#fff;font-size:13px;font-weight:900}
+    footer{padding:20px;text-align:center;background:#101827;color:#b9c5d9;font-size:12px}
+    .backLink{color:#ffdc91;font-weight:800}
+    @media(max-width:650px){
+      .topbar{padding:13px 18px}.topLinks{gap:12px;font-size:11px}
+      .hero{padding:48px 18px 62px}.hero p:last-child{font-size:14px}
+      main{width:calc(100% - 24px);margin-top:-24px}
+      .intro,.section{padding:21px 17px;border-radius:15px}
+      .featureGrid,.steps{grid-template-columns:1fr}
+      .cta{align-items:stretch;flex-direction:column;padding:20px}
+      .cta a{text-align:center}
     }
-    .container {
-      max-width: 750px;
-      margin: 35px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-    }
-    h1, h2 { color: #2457a7; }
-    a { color: #2457a7; }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
 <body>
-  <div class="container">
+  <header class="topbar">
+    <a class="brand" href="index.html">AVQENZA<span>أفكينزا</span></a>
+    <nav class="topLinks" aria-label="التنقل الرئيسي">
+      <a href="index.html#categories">الأقسام</a>
+      <a href="index.html#listings">أحدث الإعلانات</a>
+      <a href="contact.html">تواصل معنا</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <p class="eyebrow">سوقك في مكان واحد</p>
     <h1>عن AVQENZA – أفكينزا</h1>
+    <p>مساحة واحدة تجمع احتياجات البيع والشراء، وتسهّل عليك اكتشاف الإعلانات والتواصل مباشرة مع أصحابها.</p>
+  </section>
 
-    <p>
-      AVQENZA هي منصة إعلانات مبوبة تهدف إلى تسهيل البيع والشراء
-      وجمع البائعين والمشترين في مكان واحد.
-    </p>
+  <main>
+    <section class="intro">
+      <h2>أهلًا بيك في أفكينزا</h2>
+      <p>AVQENZA هي منصة إعلانات مبوبة في مصر، هدفها تسهيل الوصول إلى المنتجات والخدمات من خلال تجربة واضحة وبسيطة. تقدر تتصفح الإعلانات، تبحث حسب القسم والسعر والموقع، وتشوف التفاصيل قبل ما تتواصل مع المعلن.</p>
+    </section>
 
-    <h2>ماذا تقدم أفكينزا؟</h2>
-    <ul>
-      <li>نشر الإعلانات بسهولة.</li>
-      <li>عرض المنتجات والخدمات للوصول إلى المهتمين.</li>
-      <li>البحث عن المنتجات التي تحتاجها.</li>
-      <li>التواصل المباشر بين البائع والمشتري.</li>
-    </ul>
+    <section class="section">
+      <h2>إيه اللي تقدر تعمله على المنصة؟</h2>
+      <p>سواء بتدور على حاجة تشتريها أو عايز تعرض حاجة للبيع، هتلاقي أدوات تساعدك تبدأ بسهولة.</p>
+      <div class="featureGrid">
+        <article class="feature"><span class="featureIcon" aria-hidden="true">⌕</span><div><strong>ابحث واكتشف</strong><small>تصفح أقسام متنوعة واستخدم البحث والفلاتر للوصول للإعلان المناسب.</small></div></article>
+        <article class="feature"><span class="featureIcon" aria-hidden="true">＋</span><div><strong>انشر إعلانك</strong><small>اعرض منتجك أو خدمتك بالصور والسعر والتفاصيل الأساسية.</small></div></article>
+        <article class="feature"><span class="featureIcon" aria-hidden="true">↔</span><div><strong>تواصل مباشرة</strong><small>تواصل مع المعلن عبر وسائل الاتصال المتاحة في الإعلان واتفقوا على التفاصيل.</small></div></article>
+        <article class="feature"><span class="featureIcon" aria-hidden="true">☆</span><div><strong>تابع البائعين</strong><small>استفد من تقييمات البائعين وشارات التوثيق الظاهرة على المنصة عند توفرها.</small></div></article>
+      </div>
+    </section>
 
-    <h2>رؤيتنا</h2>
-    <p>
-      أن نجعل البيع والشراء أسهل وأسرع للجميع.
-    </p>
+    <section class="section">
+      <h2>تجربة البيع والشراء في 3 خطوات</h2>
+      <div class="steps">
+        <article class="step"><b>01</b><strong>اختار القسم</strong><p>ابدأ من الأقسام أو اكتب اسم الحاجة اللي بتدور عليها.</p></article>
+        <article class="step"><b>02</b><strong>راجع التفاصيل</strong><p>قارن السعر والصور والوصف ومعلومات المعلن.</p></article>
+        <article class="step"><b>03</b><strong>تواصل واتفق</strong><p>اسأل عن التفاصيل واتفق مع الطرف الآخر مباشرة.</p></article>
+      </div>
+    </section>
 
-    <h2>النشر مجاني</h2>
-    <p>نشر الإعلانات على AVQENZA مجاني 100%.</p>
+    <section class="section">
+      <h2>رؤيتنا</h2>
+      <p>نسعى إلى تقديم تجربة إعلانات مبوبة سهلة ومنظمة، تساعد الناس على عرض ما لديهم والعثور على ما يحتاجونه، مع إتاحة معلومات أوضح تساعدهم على اتخاذ قرار مناسب.</p>
+      <div class="note">ملاحظة مهمة: AVQENZA منصة لعرض الإعلانات والتواصل بين المستخدمين، وليست طرفًا في عمليات البيع أو الدفع. احرص دائمًا على معاينة المنتج والتحقق من التفاصيل قبل إتمام أي اتفاق.</div>
+    </section>
 
-    <p>
-      <a href="index.html">العودة إلى الصفحة الرئيسية</a>
-    </p>
-  </div>
+    <section class="cta">
+      <div><strong>جاهز تبدأ؟</strong><p>اكتشف الإعلانات أو اعرض إعلانك على AVQENZA.</p></div>
+      <a href="index.html">العودة إلى المنصة ←</a>
+    </section>
+  </main>
+
+  <footer>© 2026 AVQENZA - جميع الحقوق محفوظة · <a class="backLink" href="index.html">الصفحة الرئيسية</a></footer>
 </body>
 </html>
