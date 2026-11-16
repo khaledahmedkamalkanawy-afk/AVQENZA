@@ -2338,3 +2338,154 @@ body { background:#f4f6ff; }
 @media (prefers-reduced-motion: reduce) {
   .siteFooter .footerLinks a { transition: none; }
 }
+
+
+/* Refined search and results experience */
+.search {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 9px;
+  max-width: 900px;
+  padding: 10px;
+  border: 1px solid #d7e1e8;
+  border-top: 4px solid var(--yellow);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px #172b3a12;
+}
+
+.search input,
+.search select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #e0e6eb;
+  border-radius: 8px;
+  background: #f9fbfc;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+
+.search input:focus,
+.search select:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: #fff;
+  box-shadow: 0 0 0 3px #00718520;
+}
+
+.search input:first-child {
+  grid-column: span 2;
+}
+
+.search button {
+  min-width: 0;
+  min-height: 46px;
+}
+
+.search #searchBtn {
+  background: var(--navy2);
+  border-color: var(--navy2);
+  color: #fff;
+}
+
+.search #searchBtn:hover {
+  background: var(--blue);
+}
+
+.searchResultCount {
+  margin: 0 0 18px;
+  padding: 11px 15px;
+  border: 1px solid #dce8ee;
+  border-right: 4px solid var(--blue);
+  border-radius: 9px;
+  background: #f5fafc;
+  color: #34495a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.8;
+}
+
+#listingGrid .item,
+.searchSuggestionsGrid .item {
+  border-color: #e4e8ec;
+  border-radius: 13px;
+  box-shadow: 0 2px 8px #172b3a08;
+}
+
+#listingGrid .item:hover,
+.searchSuggestionsGrid .item:hover {
+  transform: translateY(-3px);
+  border-color: #b7cbd5;
+  box-shadow: 0 10px 24px #172b3a16;
+}
+
+#listingGrid .item img,
+.searchSuggestionsGrid .item img {
+  transition: transform .25s ease;
+}
+
+#listingGrid .item:hover img,
+.searchSuggestionsGrid .item:hover img {
+  transform: scale(1.025);
+}
+
+.emptySearchState {
+  grid-column: 1 / -1;
+  padding: 30px 22px;
+  border: 1px dashed #b9cbd5;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fff, #f5fafc);
+  text-align: right;
+}
+
+.emptySearchState h3 {
+  margin: 8px 0;
+  color: var(--navy);
+}
+
+.emptySearchState p,
+.emptySearchState li {
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+.emptySearchState ul {
+  padding-right: 22px;
+}
+
+@media (max-width: 650px) {
+  .search {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .search input:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .search input,
+  .search select {
+    min-width: 0;
+    min-height: 44px;
+    padding: 9px 8px;
+    font-size: 13px;
+  }
+
+  .search button {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 8px;
+    font-size: 13px;
+  }
+
+  .searchResultCount {
+    margin-bottom: 13px;
+    padding: 9px 11px;
+    font-size: 12px;
+  }
+
+  .emptySearchState {
+    padding: 22px 14px;
+  }
+}
