@@ -407,7 +407,8 @@ async function loadListings(){
   const total=Number(count??data?.length??0);
   if(resultCount)resultCount.textContent=total===0?'لم نعثر على إعلانات تطابق بحثك. جرّب تغيير كلمات البحث أو الفلاتر.':`تم العثور على ${total.toLocaleString('ar-EG')} إعلان${total>40?' — نعرض أول 40 نتيجة':''}`;
   if(!data?.length){
-    grid.innerHTML='<div class="empty">لا توجد نتائج مطابقة. جرّب تغيير كلمات البحث أو مسح بعض الفلاتر.</div>';
+    grid.innerHTML='<div class="empty emptySearchState"><div class="emptySearchIcon">🔎</div><h3>لم نعثر على إعلانات مطابقة</h3><p>جرّب كتابة كلمة أبسط، أو اختيار قسم آخر، أو توسيع نطاق السعر والمدينة.</p><ul><li>تأكد من كتابة كلمة البحث بشكل صحيح.</li><li>احذف بعض الفلاتر لتظهر نتائج أكثر.</li><li>جرّب البحث بدون تحديد المدينة أو الحالة.</li></ul><button type="button" id="emptyClearFilters" class="detailsBtn">مسح الفلاتر وعرض كل الإعلانات</button></div>';
+    $('emptyClearFilters')?.addEventListener('click',()=>$('clearSearchBtn').click());
     return;
   }
 
