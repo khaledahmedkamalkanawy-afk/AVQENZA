@@ -1681,3 +1681,12 @@ body { background:#f4f6ff; }
   #featured .item h3,#listings .item h3,#favoritesSection .item h3,#myListingsSection .item h3 {font-size:13px;min-height:3.4em;}
   #featured .price,#listings .price,#favoritesSection .price,#myListingsSection .price {font-size:15px;padding:4px 7px;}
 }
+
+
+/* Today's newly published listings */
+.todayListings{border:1px solid #d8e8ff;background:linear-gradient(135deg,#f1f8ff,#fff 58%,#f5f1ff);}
+.todayListings .sectionHead>div>small{color:#fff;background:linear-gradient(100deg,#087f9c,#315cff);}
+.todayHint{padding:7px 12px;border-radius:30px;background:#e6f5ff;color:#17618b;font-size:12px;font-weight:800;}
+.todayListings .listingPhotoWrap{position:relative;}
+.todayTag{position:absolute;top:10px;right:10px;padding:5px 10px;border-radius:20px;background:linear-gradient(110deg,#087f9c,#315cff);color:#fff;font-size:11px;font-weight:900;box-shadow:0 4px 12px #173b6b35;}
+.todayListings .detailsBtn{width:100%;min-height:42px;margin-top:10px;border:0;border-radius:11px;color:#fff;background:linear-gradient(110deg,#087f9c,#315cff);font-weight:900;}
