@@ -1863,3 +1863,36 @@ body { background:#f4f6ff; }
 @media(max-width:600px){.sellerVerifiedBadge{font-size:10px;padding:3px 7px;margin:3px 4px}}
 
 @media(max-width:600px){.sellerCardRating{font-size:11px;padding:5px 8px}}
+
+
+/* Mobile search: clearer spacing and comfortable touch targets */
+@media (max-width: 650px) {
+  .search {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+  .search #searchInput {
+    grid-column: 1 / -1;
+    min-height: 48px;
+    padding-inline: 13px;
+    font-size: 14px;
+  }
+  .search input,
+  .search select {
+    min-width: 0;
+    min-height: 46px;
+    height: 46px;
+    padding-inline: 10px;
+    border-radius: 11px;
+    font-size: 13px;
+  }
+  .search #searchBtn,
+  .search #clearSearchBtn {
+    min-height: 48px;
+    border-radius: 11px;
+    font-size: 14px;
+    font-weight: 900;
+  }
+}
