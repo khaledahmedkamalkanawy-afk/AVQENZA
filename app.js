@@ -828,11 +828,20 @@ function openPromotionDialog(listing){
     e.preventDefault();
     const submit=form.querySelector('button[type="submit"]');
     const reference=form.elements.reference.value.trim();
+    const plans={
+      featured_7d:{amount:49,duration:7},
+      urgent_3d:{amount:29,duration:3},
+      featured_urgent_7d:{amount:69,duration:7}
+    };
+    const planKey=form.elements.plan.value;
+    const selectedPlan=plans[planKey];
     if(reference.length<3){$('promotionMsg').textContent='اكتب مرجع التحويل بشكل صحيح.';return;}
+    if(!selectedPlan){$('promotionMsg').textContent='الباقة المختارة غير صحيحة. حدّث الصفحة وحاول مرة أخرى.';return;}
     submit.disabled=true;submit.textContent='جارٍ إرسال الطلب...';
     const {error}=await supabaseClient.from('promotion_requests').insert({
-      seller_id:currentSession.user.id,listing_id:listing.id,plan_key:form.elements.plan.value,
-      amount_egp:1,duration_days:1,payment_method:'etisalat_cash',transfer_reference:reference
+      seller_id:currentSession.user.id,listing_id:listing.id,plan_key:planKey,
+      amount_egp:selectedPlan.amount,duration_days:selectedPlan.duration,
+      payment_method:'etisalat_cash',transfer_reference:reference
     });
     submit.disabled=false;submit.textContent='إرسال طلب الترقية';
     if(error){$('promotionMsg').textContent=error.code==='23505'?'يوجد بالفعل طلب ترقية مفتوح لهذا الإعلان.':'تعذر إرسال الطلب: '+error.message;return;}
