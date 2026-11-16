@@ -357,6 +357,7 @@ async function init(){
   await loadListings();
   await loadFeaturedListings();
   await loadTodayListings();
+  await loadPopularListings();
 }
 
 async function loadListings(){
