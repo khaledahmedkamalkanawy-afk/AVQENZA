@@ -1,6 +1,7 @@
 const categories=[['🚘','السيارات'],['🏡','العقارات'],['📱','موبايلات'],['💻','إلكترونيات'],['🛋️','أثاث ومنزل'],['👕','ملابس وإكسسوارات'],['🧰','خدمات'],['💼','وظائف']];
 const $=id=>document.getElementById(id);
 let supabaseClient=null,signUpMode=false,currentSession=null,isAdmin=false;
+let favoriteIds=new Set();
 
 categories.forEach(([icon,name])=>{
   const d=document.createElement('div');
@@ -222,6 +223,7 @@ function showListingDetails(x){
         <div class="detailMeta"><span>${escapeHtml(x.category||'إعلان')}</span><span>${escapeHtml(x.city||'الموقع غير محدد')}</span></div>
         <h2>${escapeHtml(x.title)}</h2>
         <div class="detailPrice">${price}</div>
+        <button type="button" id="detailFavoriteToggle" class="favoriteToggle${favoriteIds.has(x.id)?' isFavorite':''}" data-listing-id="${escapeHtml(x.id)}" aria-pressed="${String(favoriteIds.has(x.id))}">${favoriteIds.has(x.id)?'♥ محفوظ':'♡ أضف للمفضلة'}</button>
         <div class="detailFacts">
           <div><small>حالة المنتج</small><strong>${conditionLabel}</strong></div>
           <div><small>تاريخ النشر</small><strong>${dateLabel}</strong></div>
@@ -237,6 +239,7 @@ function showListingDetails(x){
 
   $('closeListingDetails').onclick=()=>dialog.close();
   $('viewSellerStore').onclick=()=>showSellerStore(x.seller_id);
+  $('detailFavoriteToggle').onclick=()=>toggleFavorite(x.id);
   let activeIndex=0;
   const mainImage=$('detailMainImage');
   const thumbnails=Array.from(dialog.querySelectorAll('.detailThumb'));
@@ -272,6 +275,44 @@ function updateAuthUI(session){
     $('adminSection')?.setAttribute('hidden','');
   }
 }
+async function loadFavoriteIds(){
+  favoriteIds=new Set();
+  if(!currentSession?.user||!supabaseClient)return;
+  const {data,error}=await supabaseClient.from('favorites').select('listing_id').eq('user_id',currentSession.user.id);
+  if(error){console.error('Favorites load error:',error);return}
+  (data||[]).forEach(row=>favoriteIds.add(row.listing_id));
+  document.querySelectorAll('.favoriteToggle').forEach(btn=>{const saved=favoriteIds.has(btn.dataset.listingId);btn.classList.toggle('isFavorite',saved);btn.textContent=saved?'♥ محفوظ':'♡ أضف للمفضلة';btn.setAttribute('aria-pressed',String(saved));});
+}
+function addFavoriteControl(card,listing){
+  const body=card.querySelector('.itemBody');if(!body)return;
+  const button=document.createElement('button');button.type='button';
+  button.className='favoriteToggle'+(favoriteIds.has(listing.id)?' isFavorite':'');button.dataset.listingId=listing.id;
+  button.textContent=favoriteIds.has(listing.id)?'♥ محفوظ':'♡ أضف للمفضلة';button.setAttribute('aria-label','إضافة الإعلان إلى المفضلة');
+  button.setAttribute('aria-pressed',String(favoriteIds.has(listing.id)));button.onclick=()=>toggleFavorite(listing.id);body.appendChild(button);
+}
+async function toggleFavorite(listingId){
+  if(!currentSession?.user){toast('سجّل الدخول أولًا لحفظ الإعلانات.');$('authDialog').showModal();return}
+  const userId=currentSession.user.id;
+  if(favoriteIds.has(listingId)){const {error}=await supabaseClient.from('favorites').delete().eq('user_id',userId).eq('listing_id',listingId);if(error){toast('تعذر إزالة الإعلان من المفضلة: '+error.message);return}favoriteIds.delete(listingId);toast('تمت إزالة الإعلان من المفضلة.');}
+  else{const {error}=await supabaseClient.from('favorites').insert({user_id:userId,listing_id:listingId});if(error){toast(error.code==='23505'?'الإعلان محفوظ بالفعل.':'تعذر حفظ الإعلان: '+error.message);return}favoriteIds.add(listingId);toast('تم حفظ الإعلان في المفضلة ❤️');}
+  document.querySelectorAll('.favoriteToggle').forEach(btn=>{if(btn.dataset.listingId!==listingId)return;const saved=favoriteIds.has(listingId);btn.classList.toggle('isFavorite',saved);btn.textContent=saved?'♥ محفوظ':'♡ أضف للمفضلة';btn.setAttribute('aria-pressed',String(saved));});
+  if(!$('favoritesSection')?.hasAttribute('hidden'))await loadMyFavorites();
+}
+async function loadMyFavorites(){
+  const box=$('myFavorites');if(!box||!supabaseClient)return;if(!currentSession?.user){box.innerHTML='<div class="empty">سجّل الدخول لعرض إعلاناتك المحفوظة.</div>';return}
+  box.innerHTML='<div class="empty">جاري تحميل المفضلة...</div>';
+  const {data:rows,error}=await supabaseClient.from('favorites').select('listing_id').eq('user_id',currentSession.user.id).order('created_at',{ascending:false});
+  if(error){box.innerHTML='<div class="empty">تعذر تحميل المفضلة: '+escapeHtml(error.message)+'</div>';return}
+  const ids=(rows||[]).map(row=>row.listing_id);if(!ids.length){box.innerHTML='<div class="empty">لم تحفظ أي إعلانات حتى الآن. اضغط ♡ أضف للمفضلة على الإعلان الذي يعجبك.</div>';return}
+  const {data,error:listingError}=await supabaseClient.from('listings').select('id,title,description,price,city,category,image_url,image_urls,condition,status,created_at,seller_id').in('id',ids).eq('status','approved');
+  if(listingError){box.innerHTML='<div class="empty">تعذر تحميل الإعلانات المحفوظة.</div>';return}
+  const byId=new Map((data||[]).map(item=>[item.id,item]));box.innerHTML='';
+  ids.forEach(id=>{const item=byId.get(id);if(!item)return;const card=document.createElement('article');card.className='item';const img=item.image_url||'';const price=Number(item.price)>0?Number(item.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
+    card.innerHTML='<div class="listingPhotoWrap">'+(img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(item.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>')+'</div><div class="itemBody"><h3>'+escapeHtml(item.title)+'</h3><div class="price">'+price+'</div><small>'+escapeHtml(item.category||'')+' · '+escapeHtml(item.city||'')+'</small><button type="button" class="detailsBtn">عرض الإعلان</button></div>';
+    card.querySelector('.detailsBtn').onclick=()=>showListingDetails(item);card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,item.title));addFavoriteControl(card,item);box.appendChild(card);
+  });if(!box.children.length)box.innerHTML='<div class="empty">لا توجد إعلانات منشورة ضمن المفضلة حاليًا.</div>';
+}
+
 async function init(){
   const u=window.AVQENZA_SUPABASE_URL,k=window.AVQENZA_SUPABASE_ANON_KEY;
   if(!window.supabase||!u||!k){
@@ -282,10 +323,13 @@ async function init(){
   const {data,error}=await supabaseClient.auth.getSession();
   if(error)toast('تعذر التحقق من الجلسة: '+error.message);
   updateAuthUI(data?.session||null);
+  await loadFavoriteIds();
   await checkAdmin();
   supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
     updateAuthUI(session);
+    await loadFavoriteIds();
     await checkAdmin();
+    if(!$('favoritesSection')?.hasAttribute('hidden'))await loadMyFavorites();
   });
   await loadListings();
   await loadFeaturedListings();
@@ -337,6 +381,7 @@ async function loadListings(){
         ${phone?`<p><a href="tel:${escapeHtml(phone)}">اتصال بالبائع</a> · <a target="_blank" rel="noopener" href="https://wa.me/${escapeHtml(wa)}">واتساب</a></p>`:''}
       </div>`;
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+    addFavoriteControl(card,x);
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
 if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
@@ -397,6 +442,7 @@ async function loadFeaturedListings(){
       </div>`;
 
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+    addFavoriteControl(card,x);
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
     if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
 
@@ -947,6 +993,7 @@ $('adminRefresh').onclick=loadAdminDashboard;
       $('authMsg').textContent='تم إنشاء الحساب. افتح رسالة التأكيد في بريدك ثم ارجع وسجّل الدخول.';
     }else{
       updateAuthUI(r.data.session);
+      await loadFavoriteIds();
       await checkAdmin();
       $('authMsg').textContent=signUpMode?'تم إنشاء الحساب وتسجيل الدخول.':'تم تسجيل الدخول بنجاح.';
       setTimeout(()=>$('authDialog').close(),800);
