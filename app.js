@@ -346,6 +346,7 @@ async function init(){
     return;
   }
   supabaseClient=window.supabase.createClient(u,k);
+  window.avqenzaSupabaseClient=supabaseClient;
   const {data,error}=await supabaseClient.auth.getSession();
   if(error)toast('تعذر التحقق من الجلسة: '+error.message);
   updateAuthUI(data?.session||null);
