@@ -379,11 +379,11 @@ async function loadListings(){
   }
   if(term){
     const searchTerm=term
-      .replace(/[\\\\"]/g,'')
+      .replace(/[\\"]/g,'')
       .replace(/[(),]/g,' ')
-      .replace(/\\s+/g,' ')
+      .replace(/\s+/g,' ')
       .trim();
-    if(searchTerm)q=q.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+    if(searchTerm)q=q.or(\`title.ilike.%\${searchTerm}%,description.ilike.%\${searchTerm}%\`);
   }
   if(cat)q=q.eq('category',cat);
   if(city)q=q.ilike('city',`%${city}%`);
