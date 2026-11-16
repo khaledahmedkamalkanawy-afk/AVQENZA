@@ -1019,3 +1019,21 @@ textarea {
   .sellerStoreIdentity p { font-size:11px; }
   .sellerStoreIdentity .sellerStoreClose { width:32px; height:32px; flex:0 0 32px; }
 }
+
+
+/* Seller reviews */
+.sellerReviews{margin:18px 0;padding:16px;border:1px solid #e5e7eb;border-radius:14px;background:#fff}
+.sellerReviews h3{margin:0 0 12px;color:#142b49}
+.sellerReviewForm{display:grid;gap:9px;margin:12px 0 18px;padding:14px;background:#f7f9fc;border-radius:12px}
+.sellerReviewForm label{font-weight:700;font-size:14px}
+.sellerReviewForm select,.sellerReviewForm textarea{width:100%;padding:11px;border:1px solid #d5dce5;border-radius:9px;font:inherit;background:#fff}
+.sellerReviewForm button{padding:11px 16px;border:0;border-radius:9px;background:#d9a629;color:#10233e;font-weight:700;cursor:pointer}
+.sellerReviewForm button:disabled{opacity:.6;cursor:wait}
+.sellerReviewMessage,.sellerReviewHint{color:#596579;font-size:13px;margin:5px 0}
+.sellerReviewList{display:grid;gap:10px}
+.sellerReviewItem{padding:12px;border:1px solid #edf0f4;border-radius:10px}
+.sellerReviewTop{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.sellerReviewStars{color:#d39a16;letter-spacing:1px;white-space:nowrap}
+.sellerReviewItem p{margin:8px 0;color:#26364a;overflow-wrap:anywhere}
+.sellerReviewItem small{color:#778196}
+@media(max-width:600px){.sellerReviews{padding:12px}.sellerReviewTop{align-items:flex-start;flex-direction:column}}
