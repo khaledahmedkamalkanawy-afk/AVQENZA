@@ -173,7 +173,7 @@ async function loadFeaturedListings(){
 
   const {data,error}=await supabaseClient
     .from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,status,created_at')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at')
     .eq('status','approved')
     .eq('is_featured',true)
     .order('created_at',{ascending:false})
