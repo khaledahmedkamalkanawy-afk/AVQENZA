@@ -473,14 +473,14 @@ async function loadListings(){
     $('emptyClearFilters')?.addEventListener('click',()=>$('clearSearchBtn').click());
 
     let suggestionsQuery=supabaseClient.from('listings')
-      .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent')
+      .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until,views_count')
       .eq('status','approved');
     if(cat)suggestionsQuery=suggestionsQuery.eq('category',cat);
     let {data:suggestions,error:suggestionsError}=await suggestionsQuery
       .order('created_at',{ascending:false}).limit(4);
     if((suggestionsError||!suggestions?.length)&&cat){
       const fallback=await supabaseClient.from('listings')
-        .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent')
+        .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until,views_count')
         .eq('status','approved').order('created_at',{ascending:false}).limit(4);
       suggestions=fallback.data||[];
       suggestionsError=fallback.error;
@@ -611,7 +611,7 @@ async function loadUrgentListings(){
   if(!grid||!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات العاجلة...</div>';
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until')
     .eq('status','approved').eq('is_urgent',true)
     .or('urgent_until.is.null,urgent_until.gt.'+new Date().toISOString())
     .order('created_at',{ascending:false}).limit(6);
@@ -642,7 +642,7 @@ async function loadCuratedListings(){
   if(!grid||!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تجهيز اختياراتنا...</div>';
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,views_count,is_urgent')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until,views_count')
     .eq('status','approved')
     .order('views_count',{ascending:false})
     .order('created_at',{ascending:false})
@@ -681,7 +681,7 @@ async function loadTodayListings(){
   grid.innerHTML='<div class="empty">جاري تحميل إعلانات اليوم...</div>';
   const start=new Date(); start.setHours(0,0,0,0);
   const {data,error}=await supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until')
     .eq('status','approved').gte('created_at',start.toISOString())
     .order('created_at',{ascending:false}).limit(6);
   if(error){grid.innerHTML='<div class="empty">تعذر تحميل إعلانات اليوم حاليًا.</div>';console.error(error);return;}
