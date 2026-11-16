@@ -34,6 +34,70 @@ function openImageViewer(src,title='صورة الإعلان'){
   $('closeImageViewer').onclick=()=>viewer.close();
   if(!viewer.open)viewer.showModal();
 }
+
+async function openMyProfile(){
+  if(!currentSession?.user){$('authDialog').showModal();return}
+  let dialog=$('sellerProfileDialog');
+  if(!dialog){
+    dialog=document.createElement('dialog');
+    dialog.id='sellerProfileDialog';
+    dialog.className='sellerProfileDialog';
+    document.body.appendChild(dialog);
+  }
+  dialog.innerHTML='<form id="sellerProfileForm" class="sellerProfileForm"><button type="button" class="sellerProfileClose">×</button><small>حساب البائع</small><h2>ملفي الشخصي</h2><label>الاسم الظاهر للمتسوقين</label><input name="display_name" maxlength="60" placeholder="اكتب اسمك أو اسم متجرك"><label>رقم التواصل الشخصي (اختياري)</label><input name="phone" type="tel" maxlength="20" placeholder="رقم الهاتف"><p class="sellerProfileNote">بيانات الملف الشخصي خاصة بحسابك حاليًا، ولا نعرضها للعامة تلقائيًا.</p><button type="submit">حفظ البيانات</button><p class="sellerProfileMessage" aria-live="polite"></p></form>';
+  dialog.querySelector('.sellerProfileClose').onclick=()=>dialog.close();
+  const form=dialog.querySelector('form');
+  const {data,error}=await supabaseClient.from('profiles').select('display_name,phone').eq('id',currentSession.user.id).maybeSingle();
+  if(error){toast('تعذر تحميل الملف الشخصي: '+error.message);return}
+  form.elements.display_name.value=data?.display_name||'';
+  form.elements.phone.value=data?.phone||'';
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const display_name=form.elements.display_name.value.trim();
+    const phone=form.elements.phone.value.trim();
+    if(display_name.length>60){form.querySelector('.sellerProfileMessage').textContent='الاسم يجب ألا يتجاوز 60 حرفًا.';return}
+    if(phone&&!/^[+0-9\\s()-]{8,20}$/.test(phone)){form.querySelector('.sellerProfileMessage').textContent='راجع رقم الهاتف.';return}
+    const {error:saveError}=await supabaseClient.from('profiles').upsert({id:currentSession.user.id,display_name:display_name||null,phone:phone||null,updated_at:new Date().toISOString()},{onConflict:'id'});
+    if(saveError){form.querySelector('.sellerProfileMessage').textContent='تعذر الحفظ: '+saveError.message;return}
+    toast('تم حفظ بيانات ملفك الشخصي.');
+    dialog.close();
+  };
+  if(!dialog.open)dialog.showModal();
+}
+
+async function showSellerStore(sellerId){
+  if(!sellerId||!supabaseClient)return;
+  let dialog=$('sellerStoreDialog');
+  if(!dialog){
+    dialog=document.createElement('dialog');
+    dialog.id='sellerStoreDialog';
+    dialog.className='sellerStoreDialog';
+    document.body.appendChild(dialog);
+  }
+  dialog.innerHTML='<div class="sellerStoreHead"><div><small>AVQENZA MARKETPLACE</small><h2>متجر البائع</h2><p>الإعلانات المنشورة لهذا البائع</p></div><button type="button" class="sellerStoreClose">×</button></div><div class="sellerStoreBody"><div class="empty">جاري تحميل إعلانات المتجر...</div></div>';
+  dialog.querySelector('.sellerStoreClose').onclick=()=>dialog.close();
+  if(!dialog.open)dialog.showModal();
+  const {data,error}=await supabaseClient.from('listings')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id')
+    .eq('seller_id',sellerId).eq('status','approved')
+    .order('created_at',{ascending:false}).limit(40);
+  const body=dialog.querySelector('.sellerStoreBody');
+  if(error){body.innerHTML='<div class="empty">تعذر تحميل المتجر حاليًا.</div>';return}
+  if(!data?.length){body.innerHTML='<div class="empty">لا توجد إعلانات منشورة لهذا البائع حاليًا.</div>';return}
+  body.innerHTML='<div class="sellerStoreStats"><strong>'+data.length.toLocaleString('ar-EG')+'</strong><span>إعلان منشور</span></div><div class="sellerStoreGrid"></div>';
+  const grid=body.querySelector('.sellerStoreGrid');
+  data.forEach(item=>{
+    const card=document.createElement('article');
+    card.className='item sellerStoreCard';
+    const img=item.image_url||'';
+    const price=Number(item.price)>0?Number(item.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
+    card.innerHTML=`${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(item.title)}" loading="lazy">`:''}<div class="itemBody"><h3>${escapeHtml(item.title)}</h3><div class="price">${price}</div><small>${escapeHtml(item.category||'')} · ${escapeHtml(item.city||'')}</small><button type="button" class="detailsBtn">عرض الإعلان</button></div>`;
+    card.querySelector('.detailsBtn').onclick=()=>{dialog.close();showListingDetails(item)};
+    card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,item.title));
+    grid.appendChild(card);
+  });
+}
+
 function showListingDetails(x){
   let dialog=$('listingDetailsDialog');
   if(!dialog){
@@ -71,7 +135,7 @@ function showListingDetails(x){
           <div><small>عدد الصور</small><strong>${images.length.toLocaleString('ar-EG')}</strong></div>
         </div>
         <section class="detailDescription"><h3>وصف الإعلان</h3><p>${escapeHtml(x.description||'لا يوجد وصف إضافي.')}</p></section>
-        <section class="detailSeller"><div class="detailSellerIcon">AV</div><div class="detailSellerInfo"><strong>التواصل مع البائع</strong><small>تواصل مباشرة للاستفسار عن تفاصيل الإعلان</small></div></section>
+        <section class="detailSeller"><div class="detailSellerIcon">AV</div><div class="detailSellerInfo"><strong>التواصل مع البائع</strong><small>تصفح الإعلانات المنشورة لهذا البائع</small></div><button type="button" id="viewSellerStore" class="viewSellerStore">زيارة المتجر</button></section>
         ${contact}
         <p class="detailSafety">نصيحة: افحص المنتج وتأكد من تفاصيله قبل إتمام عملية الشراء.</p>
       </div>
@@ -79,6 +143,7 @@ function showListingDetails(x){
   `;
 
   $('closeListingDetails').onclick=()=>dialog.close();
+  $('viewSellerStore').onclick=()=>showSellerStore(x.seller_id);
   let activeIndex=0;
   const mainImage=$('detailMainImage');
   const thumbnails=Array.from(dialog.querySelectorAll('.detailThumb'));
@@ -492,6 +557,12 @@ const myBtn=document.createElement('button');
 myBtn.className='outline';
 myBtn.textContent='إعلاناتي';
 $('loginBtn').parentElement.insertBefore(myBtn,$('addTop'));
+
+const profileBtn=document.createElement('button');
+profileBtn.className='outline';
+profileBtn.textContent='ملفي الشخصي';
+$('loginBtn').parentElement.insertBefore(profileBtn,myBtn);
+profileBtn.onclick=openMyProfile;
 
 myBtn.onclick=async()=>{
   if(!currentSession?.user){
