@@ -366,9 +366,8 @@ async function loadListings(){
   if(!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
   let q=supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
     .eq('status','approved')
-    .order('created_at',{ascending:false})
     .limit(40);
   const term=$('searchInput').value.trim(),cat=$('categoryFilter').value;
   const city=$('cityFilter').value.trim(),condition=$('conditionFilter').value;
@@ -390,6 +389,11 @@ async function loadListings(){
   if(condition)q=q.eq('condition',condition);
   if(minPrice!=='')q=q.gte('price',Number(minPrice));
   if(maxPrice!=='')q=q.lte('price',Number(maxPrice));
+  const sort=$('sortFilter')?.value||'newest';
+  if(sort==='price_asc')q=q.order('price',{ascending:true,nullsFirst:false}).order('created_at',{ascending:false});
+  else if(sort==='price_desc')q=q.order('price',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false});
+  else if(sort==='views_desc')q=q.order('views_count',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false});
+  else q=q.order('created_at',{ascending:false});
   const {data,error}=await q;
   if(error){
     grid.innerHTML='<div class="empty">تعذر تحميل الإعلانات حاليًا. '+escapeHtml(error.message)+'</div>';
@@ -879,12 +883,14 @@ $('clearSearchBtn').onclick=()=>{
   $('minPriceFilter').value='';
   $('maxPriceFilter').value='';
   $('conditionFilter').value='';
+  $('sortFilter').value='newest';
   loadListings();
 };
 ['searchInput','cityFilter','minPriceFilter','maxPriceFilter'].forEach(id=>{
   $(id).addEventListener('keydown',event=>{if(event.key==='Enter')loadListings();});
 });
 $('conditionFilter').addEventListener('change',loadListings);
+$('sortFilter').addEventListener('change',loadListings);
 $('addTop').onclick=async()=>{
   if(!supabaseClient){toast('قاعدة البيانات غير متصلة.');return}
   const {data,error}=await supabaseClient.auth.getSession();
