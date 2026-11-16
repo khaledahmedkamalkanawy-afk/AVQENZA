@@ -2037,3 +2037,77 @@ body { background:#f4f6ff; }
     transition: none;
   }
 }
+
+
+/* Listing details page polish */
+#listingDetailsDialog {
+  width: min(760px, calc(100% - 24px));
+  max-height: 94vh;
+  padding: 0;
+  overflow: auto;
+  border: 0;
+  border-radius: 20px;
+  scrollbar-width: thin;
+}
+#listingDetailsDialog .listingDetails { background: #fff; }
+#listingDetailsDialog .detailEyebrow { padding: 18px 22px 12px; }
+#listingDetailsDialog .detailGallery { padding: 0 22px; }
+#listingDetailsDialog .detailMainImage {
+  min-height: 250px;
+  border: 1px solid #eaecf0;
+  background: #f8fafc;
+}
+#listingDetailsDialog .detailMainImage > img { border-radius: 14px; }
+#listingDetailsDialog .detailThumb { flex-basis: 72px; width: 72px; height: 62px; }
+#listingDetailsDialog .detailContent { padding: 20px 24px 26px; }
+#listingDetailsDialog .detailContent h2 { font-size: clamp(20px, 3vw, 25px); line-height: 1.45; }
+#listingDetailsDialog .detailPrice {
+  display: inline-flex;
+  align-items: center;
+  margin: 8px 0 16px;
+  padding: 9px 15px;
+  border: 1px solid #f3d6cf;
+  border-radius: 12px;
+  background: #fff7f4;
+  font-size: 27px;
+}
+#listingDetailsDialog .detailFacts > div { background: #fbfcfe; }
+#listingDetailsDialog .detailSeller {
+  border-color: #dce6ee;
+  background: #f8fbfd;
+}
+#listingDetailsDialog .viewSellerStore {
+  min-height: 42px;
+  padding: 9px 14px;
+  border-radius: 9px;
+  font-weight: 800;
+}
+#listingDetailsDialog .detailContactActions { gap: 12px; }
+#listingDetailsDialog .detailContactActions a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  border-radius: 11px;
+  text-decoration: none;
+  transition: filter .18s ease, transform .18s ease;
+}
+#listingDetailsDialog .detailContactActions a:hover { filter: brightness(.94); transform: translateY(-1px); }
+#listingDetailsDialog .detailSafety {
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+@media (max-width: 520px) {
+  #listingDetailsDialog { width: calc(100% - 10px); max-height: 96vh; border-radius: 16px; }
+  #listingDetailsDialog .detailEyebrow { padding: 14px 14px 9px; }
+  #listingDetailsDialog .detailGallery { padding: 0 10px; }
+  #listingDetailsDialog .detailMainImage { min-height: 190px; }
+  #listingDetailsDialog .detailMainImage > img { height: 40vh; }
+  #listingDetailsDialog .detailContent { padding: 14px 13px 18px; }
+  #listingDetailsDialog .detailPrice { font-size: 23px; padding: 8px 12px; }
+  #listingDetailsDialog .detailContactActions { flex-direction: column; gap: 9px; }
+  #listingDetailsDialog .detailContactActions a { min-height: 48px; }
+  #listingDetailsDialog .detailSeller { flex-wrap: wrap; }
+  #listingDetailsDialog .viewSellerStore { margin-inline-start: auto; }
+}
