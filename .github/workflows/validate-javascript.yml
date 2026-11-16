@@ -1,0 +1,45 @@
+name: Validate site JavaScript
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  syntax-check:
+    name: JavaScript syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check app.js syntax
+        run: node --check app.js
+      - name: Check inline JavaScript in index.html
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const os = require('os');
+          const path = require('path');
+          const { spawnSync } = require('child_process');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+          let checked = 0;
+          for (const match of scripts) {
+            if (/\bsrc\s*=/.test(match[1])) continue;
+            const file = path.join(os.tmpdir(), 'avqenza-inline-' + checked + '.js');
+            fs.writeFileSync(file, match[2]);
+            const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
+            fs.rmSync(file, { force: true });
+            if (result.status !== 0) {
+              process.stderr.write(result.stderr || result.stdout);
+              process.exit(result.status || 1);
+            }
+            checked++;
+          }
+          console.log('Validated ' + checked + ' inline script(s).');
+          NODE
