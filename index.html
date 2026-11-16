@@ -224,7 +224,7 @@
   </div>
 </footer>
   
-  <script src="app.js?v=20261116-authfix3"></script>
+  <script src="app.js?v=20261116-authfix4"></script>
 <script>
 window.avqenzaAuthFallback = async function () {
   const emailEl=document.getElementById('authEmail');
@@ -237,7 +237,7 @@ window.avqenzaAuthFallback = async function () {
   if(!window.supabase||!window.AVQENZA_SUPABASE_URL||!window.AVQENZA_SUPABASE_ANON_KEY){msg.textContent='تعذر الاتصال بخدمة الحسابات. حدّث الصفحة وحاول مرة أخرى.';return;}
   btn.disabled=true;btn.textContent='جارٍ التنفيذ...';msg.textContent='';
   try{
-    const client=window.supabase.createClient(window.AVQENZA_SUPABASE_URL,window.AVQENZA_SUPABASE_ANON_KEY);
+    const client=window.avqenzaSupabaseClient||window.supabase.createClient(window.AVQENZA_SUPABASE_URL,window.AVQENZA_SUPABASE_ANON_KEY);
     const isSignup=(document.getElementById('authTitle').textContent||'').includes('إنشاء حساب');
     const result=isSignup
       ?await client.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin}})
