@@ -47,6 +47,7 @@ function showListingDetails(x){
   const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
   const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
   const images=x.image_urls?.length ? x.image_urls : (x.image_url ? [x.image_url] : []);
+  const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
 const image=images.map((url,i)=>`
   <img src="${escapeHtml(url)}" alt="${escapeHtml(x.title)}" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;background:#f1f3f6;margin-bottom:8px;cursor:zoom-in" data-image-index="${i}">
 `).join('');
@@ -61,6 +62,7 @@ const image=images.map((url,i)=>`
     <div style="font-size:22px;font-weight:bold;color:#1769aa;margin-bottom:12px">${price}</div>
     <p style="line-height:1.9;white-space:pre-wrap">${escapeHtml(x.description||'لا يوجد وصف إضافي.')}</p>
     <p style="color:#667085">${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</p>
+    ${conditionLabel?`<p><strong>حالة المنتج:</strong> ${conditionLabel}</p>`:''}
     ${contact}
   `;
   $('closeListingDetails').onclick=()=>dialog.close();
@@ -117,7 +119,7 @@ async function loadListings(){
   if(!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
   let q=supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,status,created_at')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at')
     .eq('status','approved')
     .order('created_at',{ascending:false})
     .limit(40);
@@ -139,12 +141,14 @@ async function loadListings(){
     const card=document.createElement('article');
     card.className='item';
     const img=x.image_url||'';
+    const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
+    const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
     const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
     const phone=String(x.phone||'').replace(/[^0-9+]/g,'');
     const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
 
     card.innerHTML=`
-      ${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div style="height:180px;background:#26364a"></div>'}
+      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}</div>
       <div class="itemBody">
         <h3>${escapeHtml(x.title)}</h3>
         <div class="price">${price}</div>
@@ -193,6 +197,8 @@ async function loadFeaturedListings(){
     card.className='item';
 
     const img=x.image_url||'';
+    const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
+    const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
     const price=Number(x.price)>0
       ?Number(x.price).toLocaleString('ar-EG')+' جنيه'
       :'السعر عند التواصل';
@@ -201,7 +207,7 @@ async function loadFeaturedListings(){
     const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
 
     card.innerHTML=`
-      ${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div style="height:180px;background:#26364a"></div>'}
+      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}</div>
       <div class="itemBody">
         <h3>${escapeHtml(x.title)}</h3>
         <div class="price">${price}</div>
