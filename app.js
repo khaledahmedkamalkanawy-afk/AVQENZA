@@ -39,42 +39,61 @@ function showListingDetails(x){
   if(!dialog){
     dialog=document.createElement('dialog');
     dialog.id='listingDetailsDialog';
-    dialog.style.cssText='width:min(92%,650px);max-height:90vh;overflow:auto;border:0;border-radius:16px;padding:22px;background:#fff;color:#172033;box-shadow:0 15px 50px #0005';
     document.body.appendChild(dialog);
   }
 
   const phone=String(x.phone||'').replace(/[^0-9+]/g,'');
-  const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
+  const wa=phone.replace(/^\\+/,'').replace(/^0/,'20');
   const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-  const images=x.image_urls?.length ? x.image_urls : (x.image_url ? [x.image_url] : []);
-  const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
-const image=images.map((url,i)=>`
-  <img src="${escapeHtml(url)}" alt="${escapeHtml(x.title)}" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;background:#f1f3f6;margin-bottom:8px;cursor:zoom-in" data-image-index="${i}">
-`).join('');
+  const images=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls:(x.image_url?[x.image_url]:[]);
+  const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'غير محدد';
+  const dateLabel=x.created_at?new Date(x.created_at).toLocaleDateString('ar-EG'):'غير متاح';
   const contact=phone
-    ? `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><a href="tel:${escapeHtml(phone)}" style="display:inline-block;padding:12px 20px;background:#1769aa;color:white;text-decoration:none;border-radius:9px">اتصال بالبائع</a><a href="https://wa.me/${escapeHtml(wa)}" target="_blank" rel="noopener" style="display:inline-block;padding:12px 20px;background:#16834a;color:white;text-decoration:none;border-radius:9px">واتساب</a></div>`
-    : '<p>لا يوجد رقم تواصل معلن.</p>';
+    ? `<div class="detailContactActions"><a class="detailCall" href="tel:${escapeHtml(phone)}">اتصال بالبائع</a><a class="detailWhatsapp" href="https://wa.me/${escapeHtml(wa)}" target="_blank" rel="noopener">مراسلة عبر واتساب</a></div>`
+    : '<p class="detailNoContact">لا يوجد رقم تواصل معلن لهذا الإعلان.</p>';
 
   dialog.innerHTML=`
-    <button type="button" id="closeListingDetails" style="float:left;border:0;background:#eee;border-radius:8px;padding:8px 13px;font-size:18px">✕</button>
-    ${image}
-    <h2 style="margin:18px 0 8px">${escapeHtml(x.title)}</h2>
-    <div style="font-size:22px;font-weight:bold;color:#1769aa;margin-bottom:12px">${price}</div>
-    <p style="line-height:1.9;white-space:pre-wrap">${escapeHtml(x.description||'لا يوجد وصف إضافي.')}</p>
-    <p style="color:#667085">${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</p>
-    ${conditionLabel?`<p><strong>حالة المنتج:</strong> ${conditionLabel}</p>`:''}
-    ${contact}
+    <div class="listingDetails">
+      <button type="button" id="closeListingDetails" class="detailClose" aria-label="إغلاق">×</button>
+      <div class="detailEyebrow">AVQENZA MARKETPLACE</div>
+      <div class="detailGallery">
+        ${images.length
+          ? `<div class="detailMainImage"><img id="detailMainImage" src="${escapeHtml(images[0])}" alt="${escapeHtml(x.title)}">${images.length>1?'<button type="button" class="detailImageNav detailPrev" aria-label="الصورة السابقة">‹</button><button type="button" class="detailImageNav detailNext" aria-label="الصورة التالية">›</button>':''}</div><div class="detailThumbnails">${images.map((url,i)=>`<button type="button" class="detailThumb ${i===0?'active':''}" data-image-index="${i}" aria-label="عرض الصورة ${i+1}"><img src="${escapeHtml(url)}" alt=""></button>`).join('')}</div>`
+          : '<div class="detailNoImage">لا توجد صور مرفقة بهذا الإعلان</div>'}
+      </div>
+      <div class="detailContent">
+        <div class="detailMeta"><span>${escapeHtml(x.category||'إعلان')}</span><span>${escapeHtml(x.city||'الموقع غير محدد')}</span></div>
+        <h2>${escapeHtml(x.title)}</h2>
+        <div class="detailPrice">${price}</div>
+        <div class="detailFacts">
+          <div><small>حالة المنتج</small><strong>${conditionLabel}</strong></div>
+          <div><small>تاريخ النشر</small><strong>${dateLabel}</strong></div>
+          <div><small>عدد الصور</small><strong>${images.length.toLocaleString('ar-EG')}</strong></div>
+        </div>
+        <section class="detailDescription"><h3>وصف الإعلان</h3><p>${escapeHtml(x.description||'لا يوجد وصف إضافي.')}</p></section>
+        <section class="detailSeller"><div class="detailSellerIcon">AV</div><div class="detailSellerInfo"><strong>التواصل مع البائع</strong><small>تواصل مباشرة للاستفسار عن تفاصيل الإعلان</small></div></section>
+        ${contact}
+        <p class="detailSafety">نصيحة: افحص المنتج وتأكد من تفاصيله قبل إتمام عملية الشراء.</p>
+      </div>
+    </div>
   `;
+
   $('closeListingDetails').onclick=()=>dialog.close();
-  dialog.querySelectorAll('img[data-image-index]').forEach(img=>{
-  img.addEventListener('click',()=>{
-    const index=Number(img.dataset.imageIndex);
-    openImageViewer(images[index],x.title);
-  });
-});
+  let activeIndex=0;
+  const mainImage=$('detailMainImage');
+  const thumbnails=Array.from(dialog.querySelectorAll('.detailThumb'));
+  const showImage=(index)=>{
+    if(!images.length)return;
+    activeIndex=(index+images.length)%images.length;
+    mainImage.src=images[activeIndex];
+    thumbnails.forEach((button,i)=>button.classList.toggle('active',i===activeIndex));
+  };
+  thumbnails.forEach(button=>button.addEventListener('click',()=>showImage(Number(button.dataset.imageIndex))));
+  dialog.querySelector('.detailPrev')?.addEventListener('click',()=>showImage(activeIndex-1));
+  dialog.querySelector('.detailNext')?.addEventListener('click',()=>showImage(activeIndex+1));
+  mainImage?.addEventListener('click',()=>openImageViewer(images[activeIndex],x.title));
   if(!dialog.open)dialog.showModal();
 }
-
 function updateAuthUI(session){
   currentSession=session;
   const b=$('loginBtn');
