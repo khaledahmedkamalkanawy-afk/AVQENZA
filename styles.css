@@ -1854,4 +1854,13 @@ body { background:#f4f6ff; }
   background:#fff9e9;color:#805b0b;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
 }
 .sellerCardRating:focus-visible{outline:2px solid #1769aa;outline-offset:2px}
+.sellerVerifiedBadge{
+  display:inline-flex;align-items:center;gap:4px;max-width:100%;
+  margin:4px 6px;padding:4px 8px;border:1px solid #b8d8f4;border-radius:999px;
+  background:#edf7ff;color:#075a9b;font-size:11px;font-weight:800;line-height:1.5;
+  vertical-align:middle;white-space:nowrap;
+}
+.sellerStoreIdentity .sellerVerifiedBadge{margin:3px 0;font-size:12px}
+@media(max-width:600px){.sellerVerifiedBadge{font-size:10px;padding:3px 7px;margin:3px 4px}}
+
 @media(max-width:600px){.sellerCardRating{font-size:11px;padding:5px 8px}}

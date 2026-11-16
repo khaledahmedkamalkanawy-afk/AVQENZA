@@ -24,23 +24,37 @@ async function enrichSellerRatings(grid){
   const cards=Array.from(grid.querySelectorAll('.item[data-seller-id]'));
   const sellerIds=[...new Set(cards.map(card=>card.dataset.sellerId).filter(Boolean))];
   if(!sellerIds.length)return;
-  const {data,error}=await supabaseClient.from('seller_reviews')
-    .select('seller_id,rating')
-    .in('seller_id',sellerIds)
-    .order('created_at',{ascending:false})
-    .limit(1000);
-  if(error){console.warn('Seller ratings could not be loaded:',error);return;}
+  const [reviewsResult,storesResult]=await Promise.all([
+    supabaseClient.from('seller_reviews')
+      .select('seller_id,rating')
+      .in('seller_id',sellerIds)
+      .order('created_at',{ascending:false})
+      .limit(1000),
+    supabaseClient.from('seller_stores')
+      .select('seller_id,is_verified')
+      .in('seller_id',sellerIds)
+  ]);
+  if(reviewsResult.error)console.warn('Seller ratings could not be loaded:',reviewsResult.error);
+  if(storesResult.error)console.warn('Seller verification badges could not be loaded:',storesResult.error);
   const grouped=new Map();
-  (data||[]).forEach(review=>{
+  (reviewsResult.data||[]).forEach(review=>{
     if(!grouped.has(review.seller_id))grouped.set(review.seller_id,[]);
     grouped.get(review.seller_id).push(Number(review.rating)||0);
   });
+  const verifiedIds=new Set((storesResult.data||[]).filter(store=>store.is_verified).map(store=>store.seller_id));
   cards.forEach(card=>{
-    const ratings=grouped.get(card.dataset.sellerId)||[];
-    if(!ratings.length)return;
-    const average=ratings.reduce((sum,value)=>sum+value,0)/ratings.length;
     const title=card.querySelector('.itemBody h3');
-    if(!title||title.parentElement.querySelector('.sellerCardRating'))return;
+    if(!title)return;
+    if(verifiedIds.has(card.dataset.sellerId)&&!title.parentElement.querySelector('.sellerVerifiedBadge')){
+      const verified=document.createElement('span');
+      verified.className='sellerVerifiedBadge';
+      verified.textContent='✓ بائع موثوق';
+      verified.setAttribute('aria-label','هذا البائع تم التحقق منه بواسطة إدارة AVQENZA');
+      title.insertAdjacentElement('afterend',verified);
+    }
+    const ratings=grouped.get(card.dataset.sellerId)||[];
+    if(!ratings.length||title.parentElement.querySelector('.sellerCardRating'))return;
+    const average=ratings.reduce((sum,value)=>sum+value,0)/ratings.length;
     const badge=document.createElement('button');
     badge.type='button';
     badge.className='sellerCardRating';
@@ -151,7 +165,7 @@ async function showSellerStore(sellerId){
   if(!dialog.open)dialog.showModal();
 
   const [storeResult,listingsResult,reviewsResult]=await Promise.all([
-    supabaseClient.from('seller_stores').select('store_name,bio,avatar_url,cover_url').eq('seller_id',sellerId).maybeSingle(),
+    supabaseClient.from('seller_stores').select('store_name,bio,avatar_url,cover_url,is_verified').eq('seller_id',sellerId).maybeSingle(),
     supabaseClient.from('listings').select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent').eq('seller_id',sellerId).eq('status','approved').order('created_at',{ascending:false}).limit(40),
     supabaseClient.from('seller_reviews').select('rating,comment,created_at,reviewer_id',{count:'exact'}).eq('seller_id',sellerId).order('created_at',{ascending:false}).limit(1000)
   ]);
@@ -166,7 +180,7 @@ async function showSellerStore(sellerId){
   const cover=store.cover_url?'<img class="sellerStoreCover" src="'+escapeHtml(store.cover_url)+'" alt="غلاف المتجر">':'<div class="sellerStoreCover sellerStoreCoverEmpty"></div>';
   const avatar=store.avatar_url?'<img class="sellerStoreAvatar" src="'+escapeHtml(store.avatar_url)+'" alt="'+escapeHtml(name)+'">':'<div class="sellerStoreAvatar sellerStoreAvatarEmpty">AV</div>';
   const head=dialog.querySelector('.sellerStoreHead');
-  head.outerHTML='<div class="sellerStoreHero">'+cover+'<div class="sellerStoreIdentity">'+avatar+'<div><small>AVQENZA MARKETPLACE</small><h2>'+escapeHtml(name)+'</h2><p>'+escapeHtml(store.bio||'متجر على منصة AVQENZA')+'</p></div><button type="button" class="sellerStoreClose">×</button></div></div>';
+  head.outerHTML='<div class="sellerStoreHero">'+cover+'<div class="sellerStoreIdentity">'+avatar+'<div><small>AVQENZA MARKETPLACE</small><h2>'+escapeHtml(name)+(store.is_verified?' <span class="sellerVerifiedBadge">✓ بائع موثوق</span>':'')+'</h2><p>'+escapeHtml(store.bio||'متجر على منصة AVQENZA')+'</p></div><button type="button" class="sellerStoreClose">×</button></div></div>';
   dialog.querySelector('.sellerStoreClose').onclick=()=>dialog.close();
 
   const reviews=reviewsResult.data||[];
@@ -1262,51 +1276,65 @@ async function reviewPromotionRequest(id,approve){
 
 async function loadAdminUsers(){
   const box=$('adminUsers');
-  if(!box)return;
+  if(!box||!isAdmin)return;
 
   box.innerHTML='<div class="empty">جاري تحميل المستخدمين...</div>';
 
-  const {data:users,error}=await supabaseClient
-    .from('profiles')
-    .select('id,display_name,created_at')
-    .order('created_at',{ascending:false});
-
-  if(error){
-    box.innerHTML='<div class="empty">تعذر تحميل المستخدمين: '+escapeHtml(error.message)+'</div>';
+  const [usersResult,listingsResult,storesResult]=await Promise.all([
+    supabaseClient.from('profiles').select('id,display_name,created_at').order('created_at',{ascending:false}),
+    supabaseClient.from('listings').select('seller_id'),
+    supabaseClient.from('seller_stores').select('seller_id,is_verified')
+  ]);
+  if(usersResult.error||listingsResult.error||storesResult.error){
+    const error=usersResult.error||listingsResult.error||storesResult.error;
+    box.innerHTML='<div class="empty">تعذر تحميل بيانات البائعين: '+escapeHtml(error.message)+'</div>';
     return;
   }
-
-  const {data:listings,error:listingsError}=await supabaseClient
-    .from('listings')
-    .select('seller_id');
-
-  if(listingsError){
-    box.innerHTML='<div class="empty">تعذر تحميل عدد الإعلانات.</div>';
-    return;
-  }
-
-  if(!users?.length){
+  if(!usersResult.data?.length){
     box.innerHTML='<div class="empty">لا يوجد مستخدمون مسجلون.</div>';
     return;
   }
 
+  const verifiedBySeller=new Map((storesResult.data||[]).map(store=>[store.seller_id,!!store.is_verified]));
   box.innerHTML='';
-
-  users.forEach(user=>{
-    const count=(listings||[]).filter(x=>x.seller_id===user.id).length;
+  usersResult.data.forEach(user=>{
+    const count=(listingsResult.data||[]).filter(x=>x.seller_id===user.id).length;
+    const verified=verifiedBySeller.get(user.id)||false;
     const el=document.createElement('article');
     el.className='item';
-
     el.innerHTML=`
       <div class="itemBody">
-        <h3>${escapeHtml(user.display_name||'مستخدم بدون اسم')}</h3>
+        <h3>${escapeHtml(user.display_name||'مستخدم بدون اسم')} ${verified?'<span class="sellerVerifiedBadge">✓ بائع موثوق</span>':''}</h3>
         <p>عدد الإعلانات: ${count}</p>
         <small>تاريخ التسجيل: ${user.created_at?new Date(user.created_at).toLocaleDateString('ar-EG'):'غير متاح'}</small>
+        <div class="adminActions"><button type="button" data-verify-seller>${verified?'إلغاء توثيق البائع':'اعتماد كبائع موثوق'}</button></div>
       </div>
     `;
-
+    el.querySelector('[data-verify-seller]').onclick=()=>setSellerVerification(user.id,!verified);
     box.appendChild(el);
   });
+}
+
+async function setSellerVerification(sellerId,verified){
+  if(!isAdmin||!sellerId)return;
+  const {error}=await supabaseClient.rpc('admin_set_seller_verification',{
+    p_seller_id:sellerId,
+    p_is_verified:verified
+  });
+  if(error){
+    toast('تعذر تحديث توثيق البائع: '+error.message);
+    return;
+  }
+  toast(verified?'تم اعتماد البائع كبائع موثوق ✓':'تم إلغاء توثيق البائع');
+  await Promise.all([
+    loadAdminUsers(),
+    loadListings(),
+    loadFeaturedListings(),
+    loadUrgentListings(),
+    loadCuratedListings(),
+    loadTodayListings(),
+    loadPopularListings()
+  ]);
 }
 
 async function loadAdminReports(){
