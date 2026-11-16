@@ -1845,3 +1845,13 @@ body { background:#f4f6ff; }
 #promotionDialog{width:min(94%,520px);max-height:90vh;overflow:auto;border:0;border-radius:22px;padding:20px;box-shadow:0 24px 70px #0f172a35}
 #promotionDialog::backdrop{background:#0f172a99}
 @media(max-width:600px){.promotionAdminActions{flex-direction:column}.promotionWallet{font-size:21px}}
+
+
+/* Seller reputation on listing cards */
+.sellerCardRating{
+  display:inline-flex;align-items:center;gap:5px;width:max-content;max-width:100%;
+  margin:5px 0 9px;padding:5px 9px;border:1px solid #f1dfb3;border-radius:999px;
+  background:#fff9e9;color:#805b0b;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
+}
+.sellerCardRating:focus-visible{outline:2px solid #1769aa;outline-offset:2px}
+@media(max-width:600px){.sellerCardRating{font-size:11px;padding:5px 8px}}

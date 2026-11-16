@@ -19,6 +19,38 @@ function toast(m){
 
 function urgentBadge(x){return x?.is_urgent?'<span class="urgentTag">⚡ عاجل</span>':'';}
 
+async function enrichSellerRatings(grid){
+  if(!grid||!supabaseClient)return;
+  const cards=Array.from(grid.querySelectorAll('.item[data-seller-id]'));
+  const sellerIds=[...new Set(cards.map(card=>card.dataset.sellerId).filter(Boolean))];
+  if(!sellerIds.length)return;
+  const {data,error}=await supabaseClient.from('seller_reviews')
+    .select('seller_id,rating')
+    .in('seller_id',sellerIds)
+    .order('created_at',{ascending:false})
+    .limit(1000);
+  if(error){console.warn('Seller ratings could not be loaded:',error);return;}
+  const grouped=new Map();
+  (data||[]).forEach(review=>{
+    if(!grouped.has(review.seller_id))grouped.set(review.seller_id,[]);
+    grouped.get(review.seller_id).push(Number(review.rating)||0);
+  });
+  cards.forEach(card=>{
+    const ratings=grouped.get(card.dataset.sellerId)||[];
+    if(!ratings.length)return;
+    const average=ratings.reduce((sum,value)=>sum+value,0)/ratings.length;
+    const title=card.querySelector('.itemBody h3');
+    if(!title||title.parentElement.querySelector('.sellerCardRating'))return;
+    const badge=document.createElement('button');
+    badge.type='button';
+    badge.className='sellerCardRating';
+    badge.textContent='★ '+average.toFixed(1)+' · '+ratings.length.toLocaleString('ar-EG')+' تقييمات';
+    badge.setAttribute('aria-label','متوسط تقييم البائع '+average.toFixed(1)+' من 5، '+ratings.length+' تقييمات. افتح المتجر');
+    badge.addEventListener('click',()=>showSellerStore(card.dataset.sellerId));
+    title.insertAdjacentElement('afterend',badge);
+  });
+}
+
 function escapeHtml(s){
   return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -446,6 +478,7 @@ async function loadListings(){
       suggestions.forEach(x=>{
         const card=document.createElement('article');
         card.className='item';
+    card.dataset.sellerId=x.seller_id||'';
         const img=x.image_url||'';
         const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
         const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
@@ -465,6 +498,7 @@ async function loadListings(){
   data.forEach(x=>{
     const card=document.createElement('article');
     card.className='item';
+    card.dataset.sellerId=x.seller_id||'';
     const img=x.image_url||'';
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
@@ -490,6 +524,7 @@ async function loadListings(){
 if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
+  await enrichSellerRatings(grid);
 }
 async function loadFeaturedListings(){
   const grid=$('featuredGrid');
@@ -521,6 +556,7 @@ async function loadFeaturedListings(){
   data.forEach(x=>{
     const card=document.createElement('article');
     card.className='item';
+    card.dataset.sellerId=x.seller_id||'';
 
     const img=x.image_url||'';
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
@@ -552,6 +588,7 @@ async function loadFeaturedListings(){
 
     grid.appendChild(card);
   });
+  await enrichSellerRatings(grid);
 }
 async function loadUrgentListings(){
   const grid=$('urgentGrid');
@@ -566,6 +603,7 @@ async function loadUrgentListings(){
   if(!data?.length){grid.innerHTML='<div class="empty">لا توجد إعلانات عاجلة حاليًا. تابعنا لاكتشاف الإعلانات ذات الأولوية.</div>';return;}
   data.forEach(x=>{
     const card=document.createElement('article');card.className='item';
+    card.dataset.sellerId=x.seller_id||'';
     const img=x.image_url||'';
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
@@ -580,6 +618,7 @@ async function loadUrgentListings(){
     if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
+  await enrichSellerRatings(grid);
 }
 async function loadCuratedListings(){
   const grid=$('curatedGrid');
@@ -602,6 +641,7 @@ async function loadCuratedListings(){
   if(!ranked.length){grid.innerHTML='<div class="empty">لسه بنجهز أول ترشيحاتنا. أضف صورًا واضحة وتفاصيل كاملة لإعلانك ليظهر هنا.</div>';return;}
   ranked.forEach(x=>{
     const card=document.createElement('article');card.className='item';
+    card.dataset.sellerId=x.seller_id||'';
     const img=x.image_url||'';
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
@@ -616,6 +656,7 @@ async function loadCuratedListings(){
     if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
+  await enrichSellerRatings(grid);
 }
 async function loadTodayListings(){
   const grid=$('todayGrid');
@@ -631,6 +672,7 @@ async function loadTodayListings(){
   if(!data?.length){grid.innerHTML='<div class="empty">لسه مفيش إعلانات جديدة منشورة اليوم. ارجع قريبًا أو تصفح أحدث الإعلانات.</div>';return;}
   data.forEach(x=>{
     const card=document.createElement('article'); card.className='item';
+    card.dataset.sellerId=x.seller_id||'';
     const img=x.image_url||'';
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
@@ -645,6 +687,7 @@ async function loadTodayListings(){
     if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
+  await enrichSellerRatings(grid);
 }
 async function loadPopularListings(){
   const grid=$('popularGrid');
@@ -659,6 +702,7 @@ async function loadPopularListings(){
   if(!data?.length){grid.innerHTML='<div class="empty">قريبًا ستظهر هنا الإعلانات الأكثر مشاهدة بعد تسجيل زيارات حقيقية.</div>';return;}
   data.forEach(x=>{
     const card=document.createElement('article');card.className='item';
+    card.dataset.sellerId=x.seller_id||'';
     const img=x.image_url||'';
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
@@ -673,6 +717,7 @@ async function loadPopularListings(){
     if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
+  await enrichSellerRatings(grid);
 }
 async function loadPendingListings(){
   if(!isAdmin)return;
