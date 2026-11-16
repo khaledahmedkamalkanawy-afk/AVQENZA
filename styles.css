@@ -1851,7 +1851,7 @@ body { background:#f4f6ff; }
 .sellerCardRating{
   display:inline-flex;align-items:center;gap:5px;width:max-content;max-width:100%;
   margin:5px 0 9px;padding:5px 9px;border:1px solid #f1dfb3;border-radius:999px;
-  background:#fff9e9;color:#805b0b;font:700 12px inherit;cursor:pointer;
+  background:#fff9e9;color:#805b0b;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
 }
 .sellerCardRating:focus-visible{outline:2px solid #1769aa;outline-offset:2px}
 @media(max-width:600px){.sellerCardRating{font-size:11px;padding:5px 8px}}
