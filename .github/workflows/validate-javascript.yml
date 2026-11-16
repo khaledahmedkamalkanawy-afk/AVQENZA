@@ -27,11 +27,11 @@ jobs:
           const path = require('path');
           const { spawnSync } = require('child_process');
           const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+          const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
           let checked = 0;
           for (const match of scripts) {
-            if (/\\bsrc\\s*=/.test(match[1])) continue;
-            const file = path.join(os.tmpdir(), `avqenza-inline-${checked}.js`);
+            if (/\bsrc\s*=/.test(match[1])) continue;
+            const file = path.join(os.tmpdir(), 'avqenza-inline-' + checked + '.js');
             fs.writeFileSync(file, match[2]);
             const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
             fs.rmSync(file, { force: true });
@@ -41,5 +41,5 @@ jobs:
             }
             checked++;
           }
-          console.log(`Validated ${checked} inline script(s).`);
+          console.log('Validated ' + checked + ' inline script(s).');
           NODE
