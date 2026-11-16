@@ -302,16 +302,45 @@ function showListingDetails(x){
           <div><small>عدد الصور</small><strong>${images.length.toLocaleString('ar-EG')}</strong></div>
         </div>
         <section class="detailDescription"><h3>وصف الإعلان</h3><p>${escapeHtml(x.description||'لا يوجد وصف إضافي.')}</p></section>
-        <section class="detailSeller"><div class="detailSellerIcon">AV</div><div class="detailSellerInfo"><strong>التواصل مع البائع</strong><small>تصفح الإعلانات المنشورة لهذا البائع</small></div><button type="button" id="viewSellerStore" class="viewSellerStore">زيارة المتجر</button></section>
+        <section class="detailSeller"><div class="detailSellerIcon">AV</div><div class="detailSellerInfo"><strong id="detailSellerName">متجر البائع</strong><small id="detailSellerSummary">جاري تحميل بيانات البائع...</small></div><button type="button" id="viewSellerStore" class="viewSellerStore">زيارة المتجر</button></section>
         ${contact}
         <p class="detailSafety">نصيحة: افحص المنتج وتأكد من تفاصيله قبل إتمام عملية الشراء.</p>
       </div>
     </div>
   `;
 
+  dialog.dataset.listingId=String(x.id||'');
   $('closeListingDetails').onclick=()=>dialog.close();
   $('viewSellerStore').onclick=()=>showSellerStore(x.seller_id);
   $('detailFavoriteToggle').onclick=()=>toggleFavorite(x.id);
+  const sellerNameEl=$('detailSellerName');
+  const sellerSummaryEl=$('detailSellerSummary');
+  if(x.seller_id&&supabaseClient){
+    Promise.all([
+      supabaseClient.from('seller_stores').select('store_name,is_verified').eq('seller_id',x.seller_id).maybeSingle(),
+      supabaseClient.from('seller_reviews').select('rating').eq('seller_id',x.seller_id).limit(1000)
+    ]).then(([storeResult,reviewsResult])=>{
+      if(dialog.dataset.listingId!==String(x.id||''))return;
+      if(storeResult.error)console.warn('Listing seller details could not be loaded:',storeResult.error);
+      if(reviewsResult.error)console.warn('Listing seller ratings could not be loaded:',reviewsResult.error);
+      const store=storeResult.data||{};
+      const reviews=reviewsResult.data||[];
+      const average=reviews.length?reviews.reduce((sum,item)=>sum+Number(item.rating||0),0)/reviews.length:0;
+      sellerNameEl.textContent=store.store_name||'بائع على AVQENZA';
+      if(store.is_verified){
+        const verified=document.createElement('span');
+        verified.className='sellerVerifiedBadge';
+        verified.textContent=' ✓ بائع موثوق';
+        sellerNameEl.appendChild(verified);
+      }
+      sellerSummaryEl.textContent=reviews.length
+        ? '★ '+average.toFixed(1)+' من 5 · '+reviews.length.toLocaleString('ar-EG')+' تقييم · تصفح إعلانات البائع'
+        : 'لا توجد تقييمات بعد · تصفح إعلانات البائع';
+    }).catch(error=>console.warn('Listing seller summary unavailable:',error));
+  }else{
+    sellerNameEl.textContent='بائع على AVQENZA';
+    sellerSummaryEl.textContent='تصفح الإعلانات المنشورة لهذا البائع';
+  }
   let activeIndex=0;
   const mainImage=$('detailMainImage');
   const thumbnails=Array.from(dialog.querySelectorAll('.detailThumb'));
