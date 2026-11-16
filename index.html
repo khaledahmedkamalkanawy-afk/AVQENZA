@@ -53,8 +53,16 @@
         <option>خدمات</option>
         <option>وظائف</option>
       </select>
-
+      <input id="cityFilter" type="search" placeholder="المحافظة أو المدينة">
+      <input id="minPriceFilter" type="number" min="0" inputmode="numeric" placeholder="من سعر">
+      <input id="maxPriceFilter" type="number" min="0" inputmode="numeric" placeholder="إلى سعر">
+      <select id="conditionFilter">
+        <option value="">كل الحالات</option>
+        <option value="new">جديد</option>
+        <option value="used">مستعمل</option>
+      </select>
       <button id="searchBtn">ابحث</button>
+      <button id="clearSearchBtn" type="button" class="outline">مسح</button>
     </div>
   </div>
 
