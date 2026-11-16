@@ -2111,3 +2111,70 @@ body { background:#f4f6ff; }
   #listingDetailsDialog .detailSeller { flex-wrap: wrap; }
   #listingDetailsDialog .viewSellerStore { margin-inline-start: auto; }
 }
+
+
+/* Homepage benefits strip */
+.homeBenefits {
+  width: min(1120px, 90%);
+  margin: -22px auto 34px;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.homeBenefit {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px 19px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  box-shadow: 0 8px 24px #1725540c;
+}
+.homeBenefitIcon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #5145cd;
+  font-size: 23px;
+  font-weight: 900;
+}
+.homeBenefit div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.homeBenefit strong {
+  color: #172554;
+  font-size: 14px;
+  font-weight: 900;
+}
+.homeBenefit small {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.7;
+}
+@media (max-width: 650px) {
+  .homeBenefits {
+    width: 92%;
+    margin: -12px auto 25px;
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+  .homeBenefit {
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+  .homeBenefitIcon {
+    flex-basis: 38px;
+    width: 38px;
+    height: 38px;
+  }
+}
