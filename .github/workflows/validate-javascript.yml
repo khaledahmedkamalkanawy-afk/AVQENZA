@@ -19,6 +19,11 @@ jobs:
           node-version: 22
       - name: Check app.js syntax
         run: node --check app.js
+      - name: Check Vercel function syntax
+        run: |
+          node --check api/listing.js
+          node --check api/sitemap.js
+          node --check lib/public-supabase.js
       - name: Check inline JavaScript in index.html
         run: |
           node <<'NODE'

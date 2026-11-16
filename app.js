@@ -265,9 +265,7 @@ async function recordListingView(listingId){
 }
 async function shareListing(x){
   if(!x?.id)return;
-  const shareUrl=new URL(window.location.href);
-  shareUrl.searchParams.set('listing',x.id);
-  const url=shareUrl.toString();
+  const url=new URL('/listing/'+encodeURIComponent(x.id),window.location.origin).toString();
   if(navigator.share){
     try{await navigator.share({title:x.title||'إعلان على AVQENZA',text:'شوف الإعلان ده على AVQENZA',url});return}
     catch(error){if(error?.name==='AbortError')return;console.warn('Native sharing unavailable:',error)}
