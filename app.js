@@ -263,6 +263,18 @@ async function recordListingView(listingId){
     await loadPopularListings();
   }catch(error){console.error('Listing view tracking error:',error);}
 }
+async function shareListing(x){
+  if(!x?.id)return;
+  const shareUrl=new URL(window.location.href);
+  shareUrl.searchParams.set('listing',x.id);
+  const url=shareUrl.toString();
+  if(navigator.share){
+    try{await navigator.share({title:x.title||'إعلان على AVQENZA',text:'شوف الإعلان ده على AVQENZA',url});return}
+    catch(error){if(error?.name==='AbortError')return;console.warn('Native sharing unavailable:',error)}
+  }
+  try{await navigator.clipboard.writeText(url);toast('تم نسخ رابط الإعلان. تقدر تبعته لأي حد.');}
+  catch(error){window.open('https://wa.me/?text='+encodeURIComponent('شوف الإعلان ده على AVQENZA: '+(x.title||'إعلان')+' — '+url),'_blank','noopener');}
+}
 function showListingDetails(x){
   let dialog=$('listingDetailsDialog');
   if(!dialog){
@@ -296,6 +308,7 @@ function showListingDetails(x){
         <div class="detailPrice">${price}</div>
         ${urgentBadge(x)}
         <button type="button" id="detailFavoriteToggle" class="favoriteToggle${favoriteIds.has(x.id)?' isFavorite':''}" data-listing-id="${escapeHtml(x.id)}" aria-pressed="${String(favoriteIds.has(x.id))}">${favoriteIds.has(x.id)?'♥ محفوظ':'♡ أضف للمفضلة'}</button>
+        <button type="button" id="detailShareListing" class="favoriteToggle detailShareButton">↗ مشاركة الإعلان</button>
         <div class="detailFacts">
           <div><small>حالة المنتج</small><strong>${conditionLabel}</strong></div>
           <div><small>تاريخ النشر</small><strong>${dateLabel}</strong></div>
@@ -313,6 +326,7 @@ function showListingDetails(x){
   $('closeListingDetails').onclick=()=>dialog.close();
   $('viewSellerStore').onclick=()=>showSellerStore(x.seller_id);
   $('detailFavoriteToggle').onclick=()=>toggleFavorite(x.id);
+  $('detailShareListing').onclick=()=>shareListing(x);
   const sellerNameEl=$('detailSellerName');
   const sellerSummaryEl=$('detailSellerSummary');
   if(x.seller_id&&supabaseClient){
@@ -448,6 +462,15 @@ async function init(){
     }).catch(error=>console.error('Auth UI refresh error:',error));
   });
   await loadListings();
+  const sharedListingId=new URLSearchParams(window.location.search).get('listing');
+  if(sharedListingId){
+    const {data:sharedListing,error:sharedListingError}=await supabaseClient.from('listings')
+      .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,is_urgent,featured_until,urgent_until,views_count')
+      .eq('id',sharedListingId).eq('status','approved').maybeSingle();
+    if(sharedListingError)console.warn('Shared listing could not be loaded:',sharedListingError);
+    else if(sharedListing)showListingDetails(sharedListing);
+    else toast('الإعلان المطلوب غير متاح حاليًا.');
+  }
   await loadFeaturedListings();
   await loadUrgentListings();
   await loadCuratedListings();
