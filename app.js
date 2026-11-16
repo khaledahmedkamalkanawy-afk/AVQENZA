@@ -318,15 +318,18 @@ function showListingDetails(x){
   if(x.seller_id&&supabaseClient){
     Promise.all([
       supabaseClient.from('seller_stores').select('store_name,is_verified').eq('seller_id',x.seller_id).maybeSingle(),
-      supabaseClient.from('seller_reviews').select('rating').eq('seller_id',x.seller_id).limit(1000)
-    ]).then(([storeResult,reviewsResult])=>{
+      supabaseClient.from('seller_reviews').select('rating').eq('seller_id',x.seller_id).limit(1000),
+      supabaseClient.from('profiles').select('display_name').eq('id',x.seller_id).maybeSingle()
+    ]).then(([storeResult,reviewsResult,profileResult])=>{
       if(dialog.dataset.listingId!==String(x.id||''))return;
       if(storeResult.error)console.warn('Listing seller details could not be loaded:',storeResult.error);
       if(reviewsResult.error)console.warn('Listing seller ratings could not be loaded:',reviewsResult.error);
+      if(profileResult.error)console.warn('Listing seller profile could not be loaded:',profileResult.error);
       const store=storeResult.data||{};
+      const profile=profileResult.data||{};
       const reviews=reviewsResult.data||[];
       const average=reviews.length?reviews.reduce((sum,item)=>sum+Number(item.rating||0),0)/reviews.length:0;
-      sellerNameEl.textContent=store.store_name||'بائع على AVQENZA';
+      sellerNameEl.textContent=store.store_name||profile.display_name||'بائع على AVQENZA';
       if(store.is_verified){
         const verified=document.createElement('span');
         verified.className='sellerVerifiedBadge';
