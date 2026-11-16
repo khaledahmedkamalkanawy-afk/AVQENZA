@@ -1,1 +1,1 @@
-{"cleanUrls":true,"trailingSlash":false}
+{"cleanUrls":true,"trailingSlash":false,"rewrites":[{"source":"/listing/:id","destination":"/api/listing"},{"source":"/sitemap.xml","destination":"/api/sitemap"}]}
