@@ -1799,3 +1799,22 @@ body { background:#f4f6ff; }
   .emptySearchState h3{font-size:18px}
   .emptySearchState .detailsBtn{width:100%}
 }
+
+
+/* Related listings shown after an empty search */
+.searchSuggestions{
+  grid-column:1/-1;
+  width:100%;
+  margin:10px 0 4px;
+  padding:20px;
+  border:1px solid rgba(59,130,246,.16);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(239,246,255,.72),rgba(250,245,255,.78));
+}
+.searchSuggestions .sectionHead{margin-bottom:14px}
+.searchSuggestions .sectionHead h3{margin:4px 0;color:#172554;font-size:19px}
+.searchSuggestionsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+@media(max-width:600px){
+  .searchSuggestions{padding:14px;border-radius:18px}
+  .searchSuggestionsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+}
