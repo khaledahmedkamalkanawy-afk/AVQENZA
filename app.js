@@ -287,7 +287,7 @@ function showListingDetails(x){
       <div class="detailEyebrow">AVQENZA MARKETPLACE</div>
       <div class="detailGallery">
         ${images.length
-          ? `<div class="detailMainImage"><img id="detailMainImage" src="${escapeHtml(images[0])}" alt="${escapeHtml(x.title)}">${images.length>1?'<button type="button" class="detailImageNav detailPrev" aria-label="الصورة السابقة">‹</button><button type="button" class="detailImageNav detailNext" aria-label="الصورة التالية">›</button>':''}</div><div class="detailThumbnails">${images.map((url,i)=>`<button type="button" class="detailThumb ${i===0?'active':''}" data-image-index="${i}" aria-label="عرض الصورة ${i+1}"><img src="${escapeHtml(url)}" alt=""></button>`).join('')}</div>`
+          ? `<div class="detailMainImage"><img id="detailMainImage" src="${escapeHtml(images[0])}" alt="${escapeHtml(x.title)}" loading="eager" decoding="async" fetchpriority="high">${images.length>1?'<button type="button" class="detailImageNav detailPrev" aria-label="الصورة السابقة">‹</button><button type="button" class="detailImageNav detailNext" aria-label="الصورة التالية">›</button>':''}</div><div class="detailThumbnails">${images.map((url,i)=>`<button type="button" class="detailThumb ${i===0?'active':''}" data-image-index="${i}" aria-label="عرض الصورة ${i+1}"><img src="${escapeHtml(url)}" alt="" loading="lazy" decoding="async"></button>`).join('')}</div>`
           : '<div class="detailNoImage">لا توجد صور مرفقة بهذا الإعلان</div>'}
       </div>
       <div class="detailContent">
