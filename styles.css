@@ -1818,3 +1818,10 @@ body { background:#f4f6ff; }
   .searchSuggestions{padding:14px;border-radius:18px}
   .searchSuggestionsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 }
+
+
+/* Urgent listing label */
+.urgentTag{display:inline-flex;align-items:center;gap:5px;margin:7px 6px 0 0;padding:6px 11px;border:1px solid #ffd1c7;border-radius:999px;background:linear-gradient(110deg,#fff0e9,#ffe0d8);color:#b93824;font-size:11px;font-weight:900;box-shadow:0 4px 12px #d9483030;}
+#adminAllListings button[data-urgent]{margin:7px 5px 0 0;padding:9px 13px;border:1px solid #f4b7a8;border-radius:10px;background:linear-gradient(110deg,#fff0e9,#ffe0d8);color:#9e321f;font-weight:800;cursor:pointer;}
+#adminAllListings button[data-featured]{margin:7px 5px 0 0;padding:9px 13px;border:1px solid #f3d28d;border-radius:10px;background:linear-gradient(110deg,#fff8e5,#ffedbd);color:#78500b;font-weight:800;cursor:pointer;}
+@media(max-width:600px){.urgentTag{font-size:10px;padding:5px 9px}}
