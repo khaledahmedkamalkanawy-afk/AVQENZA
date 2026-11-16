@@ -1690,3 +1690,12 @@ body { background:#f4f6ff; }
 .todayListings .listingPhotoWrap{position:relative;}
 .todayTag{position:absolute;top:10px;right:10px;padding:5px 10px;border-radius:20px;background:linear-gradient(110deg,#087f9c,#315cff);color:#fff;font-size:11px;font-weight:900;box-shadow:0 4px 12px #173b6b35;}
 .todayListings .detailsBtn{width:100%;min-height:42px;margin-top:10px;border:0;border-radius:11px;color:#fff;background:linear-gradient(110deg,#087f9c,#315cff);font-weight:900;}
+
+
+/* Popular listings ranked by real view counts */
+.popularListings{border:1px solid #f1dfb8;background:linear-gradient(135deg,#fff9ed,#fff 58%,#fff3ef);}
+.popularListings .sectionHead>div>small{color:#fff;background:linear-gradient(100deg,#e87532,#d84c65);}
+.popularHint{padding:7px 12px;border-radius:30px;background:#fff0d6;color:#92521b;font-size:12px;font-weight:800;}
+.popularListings .listingPhotoWrap{position:relative;}
+.popularViewCount{position:absolute;left:10px;top:10px;padding:6px 10px;border:1px solid #ffffff80;border-radius:22px;background:#20172ddd;color:#fff;font-size:11px;font-weight:900;backdrop-filter:blur(8px);}
+.popularListings .detailsBtn{width:100%;min-height:42px;margin-top:10px;border:0;border-radius:11px;color:#fff;background:linear-gradient(110deg,#e87532,#d84c65);font-weight:900;}
