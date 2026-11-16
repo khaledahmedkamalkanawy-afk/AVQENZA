@@ -714,6 +714,15 @@ myBtn.onclick=async()=>{
   await loadMyListings();
 };
 
+$('favoritesTop').onclick=async()=>{
+  if(!currentSession?.user){$('authDialog').showModal();return}
+  const section=$('favoritesSection');
+  section.removeAttribute('hidden');
+  section.scrollIntoView({behavior:'smooth'});
+  await loadMyFavorites();
+};
+$('favoritesRefresh').onclick=loadMyFavorites;
+
 $('myListingsRefresh').onclick=loadMyListings;
 
 async function moderateListing(id,status){
