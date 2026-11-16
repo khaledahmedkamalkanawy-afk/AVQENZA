@@ -192,6 +192,28 @@ async function showSellerStore(sellerId){
   };
 }
 
+async function getAvqenzaVisitorId(){
+  const key='avqenza_visitor_id_v1';
+  try{
+    let id=localStorage.getItem(key);
+    if(!id){
+      id=globalThis.crypto?.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
+      localStorage.setItem(key,id);
+    }
+    return id;
+  }catch(error){
+    return globalThis.crypto?.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
+  }
+}
+async function recordListingView(listingId){
+  if(!supabaseClient||!listingId)return;
+  try{
+    const visitorId=await getAvqenzaVisitorId();
+    const {error}=await supabaseClient.rpc('record_listing_view',{p_listing_id:listingId,p_visitor_id:visitorId});
+    if(error){console.error('Listing view tracking error:',error);return;}
+    await loadPopularListings();
+  }catch(error){console.error('Listing view tracking error:',error);}
+}
 function showListingDetails(x){
   let dialog=$('listingDetailsDialog');
   if(!dialog){
@@ -254,6 +276,7 @@ function showListingDetails(x){
   dialog.querySelector('.detailNext')?.addEventListener('click',()=>showImage(activeIndex+1));
   mainImage?.addEventListener('click',()=>openImageViewer(images[activeIndex],x.title));
   if(!dialog.open)dialog.showModal();
+  if(currentSession?.user?.id!==x.seller_id)recordListingView(x.id);
 }
 function updateAuthUI(session){
   currentSession=session;
@@ -472,6 +495,34 @@ async function loadTodayListings(){
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
     card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+'<span class="todayTag">اليوم</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
+    card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+    addFavoriteControl(card,x);
+    card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
+    if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
+    grid.appendChild(card);
+  });
+}
+async function loadPopularListings(){
+  const grid=$('popularGrid');
+  if(!grid||!supabaseClient)return;
+  grid.innerHTML='<div class="empty">جاري تحميل الأكثر مشاهدة...</div>';
+  const {data,error}=await supabaseClient.from('listings')
+    .select('id,title,description,price,city,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+    .eq('status','approved').gt('views_count',0)
+    .order('views_count',{ascending:false}).order('created_at',{ascending:false}).limit(6);
+  if(error){grid.innerHTML='<div class="empty">تعذر تحميل الأكثر مشاهدة حاليًا.</div>';console.error(error);return;}
+  grid.innerHTML='';
+  if(!data?.length){grid.innerHTML='<div class="empty">قريبًا ستظهر هنا الإعلانات الأكثر مشاهدة بعد تسجيل زيارات حقيقية.</div>';return;}
+  data.forEach(x=>{
+    const card=document.createElement('article');card.className='item';
+    const img=x.image_url||'';
+    const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
+    const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
+    const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
+    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
+    const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
+    const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
+    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+'<span class="popularViewCount">◉ '+Number(x.views_count).toLocaleString('ar-EG')+' مشاهدة</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
     addFavoriteControl(card,x);
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
