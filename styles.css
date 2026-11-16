@@ -940,7 +940,19 @@ textarea {
 .detailNoContact { color: #667085; }
 .detailSafety { margin: 14px 0 0; color: #667085; font-size: 11px; line-height: 1.8; }
 @media (max-width: 520px) {
-  #listingDetailsDialog { width: calc(100% - 12px); max-height: 96vh; border-radius: 14px; }
+  #listingDetailsDialog {
+  /* Keep seller contact actions reachable while scrolling the listing details */
+  #listingDetailsDialog .detailContactActions {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin: 16px -13px -18px;
+    padding: 12px 13px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid #e7ebf0;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 -8px 22px rgba(15, 23, 42, .08);
+    backdrop-filter: blur(10px);
+  } width: calc(100% - 12px); max-height: 96vh; border-radius: 14px; }
   .detailEyebrow { padding: 14px 14px 8px; }
   .detailGallery { padding: 0 10px; }
   .detailMainImage > img { height: 38vh; }
