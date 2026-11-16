@@ -11,7 +11,7 @@
 </head>
 <body>
 <header class="top"><a class="brand" href="#">AVQENZA<span>أفكينزا</span></a><nav><a href="#categories">الأقسام</a><a href="#listings">أحدث الإعلانات</a><a href="#how">كيف يعمل؟</a></nav> <div>
-<button class="outline" id="loginBtn">تسجيل الدخول</button>
+<button class="outline" id="loginBtn" type="button" onclick="document.getElementById('authDialog').showModal()">تسجيل الدخول</button>
 <button id="signupTop">إنشاء حساب مجانًا</button>
 <button class="outline" id="favoritesTop">♡ المفضلة</button>
 <button id="addTop">＋ أضف إعلانك</button>
@@ -224,7 +224,7 @@
   </div>
 </footer>
   
-  <script src="app.js"></script>
+  <script src="app.js?v=20261116-authfix1"></script>
 <script>
 window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
