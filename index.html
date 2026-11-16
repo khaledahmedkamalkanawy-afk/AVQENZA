@@ -182,7 +182,6 @@
   </section>
 <section id="how" class="how"><small>ببساطة</small><h2>كيف تعمل AVQENZA؟</h2><div class="steps"><article><b>01</b><h3>ابحث واكتشف</h3><p>تصفح الأقسام وابحث عن اللي يناسبك.</p></article><article><b>02</b><h3>قارن التفاصيل</h3><p>راجع الصور والسعر ومعلومات الإعلان.</p></article><article><b>03</b><h3>تواصل مباشرة</h3><p>اتواصل مع البائع واتفقوا مباشرة.</p></article></div></section>
 </main>
-<footer><a class="brand" href="#">AVQENZA<span>أفكينزا</span></a><p>التجارة تبدأ من هنا</p><small>© 2026 AVQENZA. جميع الحقوق محفوظة.</small></footer>
 <dialog id="authDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2 id="authTitle">تسجيل الدخول</h2><input id="authEmail" type="email" placeholder="البريد الإلكتروني" required><input id="authPassword" type="password" placeholder="كلمة المرور" required><button id="authSubmit" type="button" onclick="window.avqenzaAuthFallback()">دخول</button><p id="authSwitch">ليس لديك حساب؟ <a href="#" id="signupLink">إنشاء حساب</a></p><p id="authMsg"></p></form></dialog>
 <dialog id="adDialog"><form method="dialog" class="dialogForm"><button class="x" aria-label="إغلاق">×</button><h2>أضف إعلانك</h2><input id="adTitle" placeholder="عنوان الإعلان" required><select id="adCategory"><option>السيارات</option><option>العقارات</option><option>موبايلات</option><option>إلكترونيات</option><option>أثاث ومنزل</option><option>ملابس وإكسسوارات</option><option>خدمات</option><option>وظائف</option></select><input id="adPrice" type="number" min="0" step="0.01" placeholder="السعر بالجنيه (اكتب 0 لو السعر عند التواصل)"><input id="adPhone" type="tel" inputmode="tel" placeholder="رقم الموبايل للتواصل" required><input id="adCity" placeholder="المحافظة / المدينة" value="القاهرة"><select id="adCondition"><option value="used">مستعمل</option><option value="new">جديد</option></select><textarea id="adDescription" placeholder="وصف الإعلان"></textarea><input id="adImage" type="file" accept="image/png,image/jpeg,image/webp" multiple><button id="adSubmit" type="button">نشر الإعلان</button><p id="adMsg"></p></form></dialog>
 <dialog id="editAdDialog">
@@ -222,23 +221,38 @@
 
 <footer class="siteFooter">
   <div class="footerContent">
-    <a href="index.html" class="footerBrand">AVQENZA</a>
-
-    <p class="footerDescription">
-      منصتك للإعلانات المبوبة في مصر.
-      بيع واشتري بسهولة وتواصل مباشرة مع البائع.
-    </p>
-
-    <div class="footerLinks">
-      <a href="privacy.html">سياسة الخصوصية</a>
-      <a href="terms.html">شروط الاستخدام</a>
-      <a href="about.html">عن AVQENZA</a>
-      <a href="contact.html">تواصل معنا</a>
+    <div class="footerColumn footerIntro">
+      <a href="index.html" class="footerBrand">AVQENZA<span>أفكينزا</span></a>
+      <p class="footerDescription">
+        منصتك للإعلانات المبوبة في مصر. بيع واشتري بسهولة، واكتشف اختيارات متنوعة، وتواصل مباشرة مع البائع.
+      </p>
+      <span class="footerTagline">سوقك في مكان واحد</span>
     </div>
 
-    <div class="footerCopyright">
-      © 2026 AVQENZA - جميع الحقوق محفوظة
+    <div class="footerColumn">
+      <h3>تصفح المنصة</h3>
+      <div class="footerLinks">
+        <a href="#categories">كل الأقسام</a>
+        <a href="#featured">الإعلانات المميزة</a>
+        <a href="#listings">أحدث الإعلانات</a>
+        <a href="#how">كيف تعمل AVQENZA؟</a>
+      </div>
     </div>
+
+    <div class="footerColumn">
+      <h3>معلومات تهمك</h3>
+      <div class="footerLinks">
+        <a href="about.html">عن AVQENZA</a>
+        <a href="contact.html">تواصل معنا</a>
+        <a href="privacy.html">سياسة الخصوصية</a>
+        <a href="terms.html">شروط الاستخدام</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footerBottom">
+    <span>© 2026 AVQENZA - جميع الحقوق محفوظة</span>
+    <a href="index.html" aria-label="العودة إلى الصفحة الرئيسية">العودة للأعلى ↑</a>
   </div>
 </footer>
   
