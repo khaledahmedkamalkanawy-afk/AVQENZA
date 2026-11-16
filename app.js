@@ -1305,38 +1305,7 @@ async function checkAdmin(){
 }
 
 $('adminRefresh').onclick=loadAdminDashboard;
-         $('authSubmit').onclick=async()=>{
-  if(!supabaseClient)return;
-  const email=$('authEmail').value.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g,'').trim().toLowerCase(),password=$('authPassword').value;
-  if(!email||!password){$('authMsg').textContent='اكتب البريد الإلكتروني وكلمة المرور.';return}
-  const btn=$('authSubmit');
-  btn.disabled=true;
-  btn.textContent='جارٍ التنفيذ...';
-  $('authMsg').textContent='';
-  try{
-    const r=signUpMode
-      ?await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin}})
-      :await supabaseClient.auth.signInWithPassword({email,password});
-    if(r.error){$('authMsg').textContent='تعذر إتمام العملية: '+r.error.message;return}
-    if(signUpMode&&!r.data.session){
-      $('authMsg').textContent='تم إنشاء الحساب. افتح رسالة التأكيد في بريدك ثم ارجع وسجّل الدخول.';
-    }else{
-      updateAuthUI(r.data.session);
-      await loadFavoriteIds();
-      await checkAdmin();
-      $('authMsg').textContent=signUpMode?'تم إنشاء الحساب وتسجيل الدخول.':'تم تسجيل الدخول بنجاح.';
-      setTimeout(()=>$('authDialog').close(),800);
-      toast('أهلًا بك في AVQENZA');
-    }
-  }catch(e){
-    $('authMsg').textContent='حدث خطأ غير متوقع: '+(e.message||e);
-  }finally{
-    btn.disabled=false;
-    btn.textContent=signUpMode?'إنشاء الحساب':'دخول';
-  }
-};
-
-$('adSubmit').onclick=async()=>{
+         $('adSubmit').onclick=async()=>{
   if(!supabaseClient)return;
   const msg=$('adMsg');
   msg.textContent='';
