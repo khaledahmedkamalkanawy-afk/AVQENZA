@@ -301,6 +301,13 @@ function updateAuthUI(session){
     $('adminSection')?.setAttribute('hidden','');
   }
 }
+window.avqenzaApplySession=async function(session){
+  updateAuthUI(session);
+  await loadFavoriteIds();
+  await checkAdmin();
+  if(!$('favoritesSection')?.hasAttribute('hidden'))await loadMyFavorites();
+};
+
 async function loadFavoriteIds(){
   favoriteIds=new Set();
   if(!currentSession?.user||!supabaseClient)return;
