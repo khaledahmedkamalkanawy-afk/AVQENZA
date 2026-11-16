@@ -1699,3 +1699,12 @@ body { background:#f4f6ff; }
 .popularListings .listingPhotoWrap{position:relative;}
 .popularViewCount{position:absolute;left:10px;top:10px;padding:6px 10px;border:1px solid #ffffff80;border-radius:22px;background:#20172ddd;color:#fff;font-size:11px;font-weight:900;backdrop-filter:blur(8px);}
 .popularListings .detailsBtn{width:100%;min-height:42px;margin-top:10px;border:0;border-radius:11px;color:#fff;background:linear-gradient(110deg,#e87532,#d84c65);font-weight:900;}
+
+
+/* Curated AVQENZA picks */
+.curatedListings{border:1px solid #d9d5ff;background:linear-gradient(130deg,#f4f1ff,#fff 55%,#effbff);}
+.curatedListings .sectionHead>div>small{color:#fff;background:linear-gradient(100deg,#6155df,#258ecb);}
+.curatedHint{padding:7px 12px;border-radius:30px;background:#eceaff;color:#4c43a5;font-size:12px;font-weight:800;}
+.curatedListings .listingPhotoWrap{position:relative;}
+.curatedTag{position:absolute;top:10px;right:10px;padding:6px 11px;border:1px solid #ffffff80;border-radius:20px;background:linear-gradient(110deg,#6255df,#278fc9);color:#fff;font-size:11px;font-weight:900;box-shadow:0 5px 14px #36308a35;}
+.curatedListings .detailsBtn{width:100%;min-height:43px;margin-top:10px;border:0;border-radius:12px;color:#fff;background:linear-gradient(110deg,#6255df,#278fc9);font-weight:900;}
