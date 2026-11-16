@@ -356,6 +356,7 @@ async function init(){
   });
   await loadListings();
   await loadFeaturedListings();
+  await loadCuratedListings();
   await loadTodayListings();
   await loadPopularListings();
 }
@@ -471,6 +472,42 @@ async function loadFeaturedListings(){
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
     if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
 
+    grid.appendChild(card);
+  });
+}
+async function loadCuratedListings(){
+  const grid=$('curatedGrid');
+  if(!grid||!supabaseClient)return;
+  grid.innerHTML='<div class="empty">جاري تجهيز اختياراتنا...</div>';
+  const {data,error}=await supabaseClient.from('listings')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+    .eq('status','approved')
+    .order('views_count',{ascending:false})
+    .order('created_at',{ascending:false})
+    .limit(30);
+  if(error){grid.innerHTML='<div class="empty">تعذر تحميل الترشيحات حاليًا.</div>';console.error(error);return;}
+  const ranked=(data||[]).map(x=>{
+    const images=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls:(x.image_url?[x.image_url]:[]);
+    const description=String(x.description||'').trim();
+    const score=(images.length?3:0)+(images.length>1?1:0)+(description.length>=80?2:description.length>=30?1:0)+(Number(x.price)>0?1:0)+(Number(x.views_count)>0?Math.min(2,Math.log10(Number(x.views_count)+1)):0);
+    return {...x,_score:score};
+  }).filter(x=>x._score>=4).sort((a,b)=>b._score-a._score).slice(0,4);
+  grid.innerHTML='';
+  if(!ranked.length){grid.innerHTML='<div class="empty">لسه بنجهز أول ترشيحاتنا. أضف صورًا واضحة وتفاصيل كاملة لإعلانك ليظهر هنا.</div>';return;}
+  ranked.forEach(x=>{
+    const card=document.createElement('article');card.className='item';
+    const img=x.image_url||'';
+    const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
+    const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
+    const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
+    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
+    const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
+    const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
+    card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+'<span class="curatedTag">اختيار مميز</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">اكتشف الإعلان</button></div>';
+    card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
+    addFavoriteControl(card,x);
+    card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
+    if(card.querySelector('img'))card.querySelector('img').style.cursor='zoom-in';
     grid.appendChild(card);
   });
 }
