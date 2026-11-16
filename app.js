@@ -765,24 +765,32 @@ $('adSubmit').onclick=async()=>{
   const {error:pe}=await supabaseClient.from('profiles').upsert({id:user.id},{onConflict:'id',ignoreDuplicates:true});
   if(pe){msg.textContent='تعذر تجهيز ملف البائع: '+pe.message;return}
 
-  let imageUrl=null;
-  const f=$('adImage').files?.[0];
-  if(f){
-    if(f.size>5*1024*1024){msg.textContent='حجم الصورة يجب ألا يتجاوز 5 ميجابايت.';return}
-    if(!['image/jpeg','image/png','image/webp'].includes(f.type)){msg.textContent='الصورة يجب أن تكون JPG أو PNG أو WebP.';return}
-    const path=`${user.id}/${Date.now()}-${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-    const up=await supabaseClient.storage.from('listing-images').upload(path,f);
-    if(up.error){msg.textContent='تعذر رفع الصورة: '+up.error.message;return}
-    imageUrl=supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+  const files=Array.from($('adImage').files||[]);
+  if(files.length>5){msg.textContent='يمكنك إضافة 5 صور كحد أقصى.';return}
+  if(files.some(file=>file.size>5*1024*1024)){msg.textContent='حجم كل صورة يجب ألا يتجاوز 5 ميجابايت.';return}
+  if(files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type))){msg.textContent='اختر صور JPG أو PNG أو WebP فقط.';return}
+
+  const uploadedPaths=[];
+  const imageUrls=[];
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    const path=user.id+'/'+Date.now()+'-'+i+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const up=await supabaseClient.storage.from('listing-images').upload(path,file);
+    if(up.error){
+      if(uploadedPaths.length)await supabaseClient.storage.from('listing-images').remove(uploadedPaths);
+      msg.textContent='تعذر رفع الصورة: '+up.error.message;
+      return;
+    }
+    uploadedPaths.push(path);
+    imageUrls.push(supabaseClient.storage.from('listing-images').getPublicUrl(path).data.publicUrl);
   }
 
-  const payload={seller_id:user.id,title,description,price:priceRaw?Number(priceRaw):0,category,city,phone,image_url:imageUrl,status:'pending'};
+  const imageUrl=imageUrls[0]||null;
+  const condition=$('adCondition').value;
+  const payload={seller_id:user.id,title,description,price:priceRaw?Number(priceRaw):0,category,city,phone,condition,image_url:imageUrl,image_urls:imageUrls,status:'pending'};
   const {error:le}=await supabaseClient.from('listings').insert(payload);
   if(le){
-    if(f){
-      const path=imageUrl?.split('/listing-images/')[1];
-      if(path)await supabaseClient.storage.from('listing-images').remove([decodeURIComponent(path)]);
-    }
+    if(uploadedPaths.length)await supabaseClient.storage.from('listing-images').remove(uploadedPaths);
     msg.textContent='تعذر حفظ الإعلان: '+le.message;
     return;
   }
