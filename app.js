@@ -377,7 +377,14 @@ async function loadListings(){
     grid.innerHTML='<div class="empty">السعر الأدنى لا يمكن أن يكون أكبر من السعر الأعلى.</div>';
     return;
   }
-  if(term)q=q.ilike('title',`%${term}%`);
+  if(term){
+    const searchTerm=term
+      .replace(/[\\\\"]/g,'')
+      .replace(/[(),]/g,' ')
+      .replace(/\\s+/g,' ')
+      .trim();
+    if(searchTerm)q=q.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+  }
   if(cat)q=q.eq('category',cat);
   if(city)q=q.ilike('city',`%${city}%`);
   if(condition)q=q.eq('condition',condition);
