@@ -207,7 +207,7 @@ async function showSellerStore(sellerId){
     card.className='item sellerStoreCard';
     const img=item.image_url||'';
     const price=Number(item.price)>0?Number(item.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-    card.innerHTML=`${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(item.title)}" loading="lazy">`:''}<div class="itemBody"><h3>${escapeHtml(item.title)}</h3><div class="price">${price}</div><small>${escapeHtml(item.category||'')} · ${escapeHtml(item.city||'')}</small><button type="button" class="detailsBtn">عرض الإعلان</button></div>`;
+    card.innerHTML=`${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(item.title)}" loading="lazy" decoding="async">`:''}<div class="itemBody"><h3>${escapeHtml(item.title)}</h3><div class="price">${price}</div><small>${escapeHtml(item.category||'')} · ${escapeHtml(item.city||'')}</small><button type="button" class="detailsBtn">عرض الإعلان</button></div>`;
     card.querySelector('.detailsBtn').onclick=()=>{dialog.close();showListingDetails(item)};
     card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,item.title));
     grid.appendChild(card);
@@ -388,7 +388,7 @@ async function loadMyFavorites(){
   if(listingError){box.innerHTML='<div class="empty">تعذر تحميل الإعلانات المحفوظة.</div>';return}
   const byId=new Map((data||[]).map(item=>[item.id,item]));box.innerHTML='';
   ids.forEach(id=>{const item=byId.get(id);if(!item)return;const card=document.createElement('article');card.className='item';const img=item.image_url||'';const price=Number(item.price)>0?Number(item.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-    card.innerHTML='<div class="listingPhotoWrap">'+(img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(item.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>')+'</div><div class="itemBody"><h3>'+escapeHtml(item.title)+'</h3><div class="price">'+price+'</div><small>'+escapeHtml(item.category||'')+' · '+escapeHtml(item.city||'')+'</small><button type="button" class="detailsBtn">عرض الإعلان</button></div>';
+    card.innerHTML='<div class="listingPhotoWrap">'+(img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(item.title)+'" loading="lazy" decoding="async">':'<div class="listingPhotoEmpty"></div>')+'</div><div class="itemBody"><h3>'+escapeHtml(item.title)+'</h3><div class="price">'+price+'</div><small>'+escapeHtml(item.category||'')+' · '+escapeHtml(item.city||'')+'</small><button type="button" class="detailsBtn">عرض الإعلان</button></div>';
     card.querySelector('.detailsBtn').onclick=()=>showListingDetails(item);card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,item.title));addFavoriteControl(card,item);box.appendChild(card);
   });if(!box.children.length)box.innerHTML='<div class="empty">لا توجد إعلانات منشورة ضمن المفضلة حاليًا.</div>';
 }
@@ -498,7 +498,7 @@ async function loadListings(){
         const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
         const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
         const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-        card.innerHTML=`<div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div><div class="itemBody"><h3>${escapeHtml(x.title)}</h3><div class="price">${price}</div><p>${escapeHtml(x.description||'')}</p><small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small><div style="margin-top:12px"><button type="button" class="detailsBtn">عرض التفاصيل</button></div></div>`;
+        card.innerHTML=`<div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy" decoding="async">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div><div class="itemBody"><h3>${escapeHtml(x.title)}</h3><div class="price">${price}</div><p>${escapeHtml(x.description||'')}</p><small>${escapeHtml(x.category||'')} · ${escapeHtml(x.city||'')}</small><div style="margin-top:12px"><button type="button" class="detailsBtn">عرض التفاصيل</button></div></div>`;
         card.querySelector('.detailsBtn').onclick=()=>showListingDetails(x);
         addFavoriteControl(card,x);
         card.querySelector('img')?.addEventListener('click',()=>openImageViewer(img,x.title));
@@ -522,7 +522,7 @@ async function loadListings(){
     const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
 
     card.innerHTML=`
-      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div>
+      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy" decoding="async">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div>
       <div class="itemBody">
         <h3>${escapeHtml(x.title)}</h3>
         <div class="price">${price}</div>
@@ -585,7 +585,7 @@ async function loadFeaturedListings(){
     const wa=phone.replace(/^\+/,'').replace(/^0/,'20');
 
     card.innerHTML=`
-      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div>
+      <div class="listingPhotoWrap">${img?`<img src="${escapeHtml(img)}" alt="${escapeHtml(x.title)}" loading="lazy" decoding="async">`:'<div class="listingPhotoEmpty"></div>'}${imageCount>1?`<span class="photoCount">＋${imageCount-1} صور</span>`:''}${conditionLabel?`<span class="conditionTag">${conditionLabel}</span>`:''}${urgentBadge(x)}</div>
       <div class="itemBody">
         <h3>${escapeHtml(x.title)}</h3>
         <div class="price">${price}</div>
@@ -625,7 +625,7 @@ async function loadUrgentListings(){
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
     const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
+    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy" decoding="async">':'<div class="listingPhotoEmpty"></div>';
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
     card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="urgentPriorityTag">أولوية</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
@@ -663,7 +663,7 @@ async function loadCuratedListings(){
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
     const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
+    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy" decoding="async">':'<div class="listingPhotoEmpty"></div>';
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
     card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="curatedTag">اختيار مميز</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">اكتشف الإعلان</button></div>';
@@ -694,7 +694,7 @@ async function loadTodayListings(){
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
     const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
+    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy" decoding="async">':'<div class="listingPhotoEmpty"></div>';
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
     card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="todayTag">اليوم</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
@@ -724,7 +724,7 @@ async function loadPopularListings(){
     const imageCount=Array.isArray(x.image_urls)&&x.image_urls.length?x.image_urls.length:(img?1:0);
     const conditionLabel=x.condition==='new'?'جديد':x.condition==='used'?'مستعمل':'';
     const price=Number(x.price)>0?Number(x.price).toLocaleString('ar-EG')+' جنيه':'السعر عند التواصل';
-    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy">':'<div class="listingPhotoEmpty"></div>';
+    const photo=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(x.title)+'" loading="lazy" decoding="async">':'<div class="listingPhotoEmpty"></div>';
     const count=imageCount>1?'<span class="photoCount">＋'+(imageCount-1)+' صور</span>':'';
     const condition=conditionLabel?'<span class="conditionTag">'+conditionLabel+'</span>':'';
     card.innerHTML='<div class="listingPhotoWrap">'+photo+count+condition+urgentBadge(x)+'<span class="popularViewCount">◉ '+Number(x.views_count).toLocaleString('ar-EG')+' مشاهدة</span></div><div class="itemBody"><h3>'+escapeHtml(x.title)+'</h3><div class="price">'+price+'</div><p>'+escapeHtml(x.description||'')+'</p><small>'+escapeHtml(x.category||'')+' · '+escapeHtml(x.city||'')+'</small><button type="button" class="detailsBtn">عرض التفاصيل</button></div>';
