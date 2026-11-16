@@ -1825,3 +1825,13 @@ body { background:#f4f6ff; }
 #adminAllListings button[data-urgent]{margin:7px 5px 0 0;padding:9px 13px;border:1px solid #f4b7a8;border-radius:10px;background:linear-gradient(110deg,#fff0e9,#ffe0d8);color:#9e321f;font-weight:800;cursor:pointer;}
 #adminAllListings button[data-featured]{margin:7px 5px 0 0;padding:9px 13px;border:1px solid #f3d28d;border-radius:10px;background:linear-gradient(110deg,#fff8e5,#ffedbd);color:#78500b;font-weight:800;cursor:pointer;}
 @media(max-width:600px){.urgentTag{font-size:10px;padding:5px 9px}}
+
+
+/* Dedicated urgent listings section */
+.urgentListings{border:1px solid #ffd2c8;background:linear-gradient(135deg,#fff1ed,#fff 56%,#fff7e9);}
+.urgentListings .sectionHead>div>small{color:#fff;background:linear-gradient(110deg,#e94f37,#f08b36);}
+.urgentHint{padding:7px 12px;border:1px solid #ffd4c9;border-radius:30px;background:#fff0eb;color:#a93625;font-size:12px;font-weight:900;}
+.urgentListings .listingPhotoWrap{position:relative;}
+.urgentListings .urgentTag{position:absolute;top:10px;right:10px;margin:0;}
+.urgentPriorityTag{position:absolute;left:10px;top:10px;padding:6px 10px;border-radius:20px;background:linear-gradient(110deg,#a92d20,#ed5b3c);color:#fff;font-size:11px;font-weight:900;box-shadow:0 5px 14px #a92d2038;}
+.urgentListings .detailsBtn{width:100%;min-height:43px;margin-top:10px;border:0;border-radius:12px;color:#fff;background:linear-gradient(110deg,#d94332,#f08b36);font-weight:900;box-shadow:0 7px 16px #d9433228;}
