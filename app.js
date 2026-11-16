@@ -363,10 +363,12 @@ async function init(){
 
 async function loadListings(){
   const grid=$('listingGrid');
+  const resultCount=$('searchResultCount');
   if(!supabaseClient)return;
   grid.innerHTML='<div class="empty">جاري تحميل الإعلانات...</div>';
+  if(resultCount)resultCount.textContent='جاري البحث عن الإعلانات...';
   let q=supabaseClient.from('listings')
-    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count')
+    .select('id,title,description,price,city,phone,category,image_url,image_urls,condition,status,created_at,seller_id,views_count',{count:'exact'})
     .eq('status','approved')
     .limit(40);
   const term=$('searchInput').value.trim(),cat=$('categoryFilter').value;
@@ -374,6 +376,7 @@ async function loadListings(){
   const minPrice=$('minPriceFilter').value,maxPrice=$('maxPriceFilter').value;
   if(minPrice!==''&&maxPrice!==''&&Number(minPrice)>Number(maxPrice)){
     grid.innerHTML='<div class="empty">السعر الأدنى لا يمكن أن يكون أكبر من السعر الأعلى.</div>';
+    if(resultCount)resultCount.textContent='راجع نطاق السعر المحدد';
     return;
   }
   if(term){
@@ -394,14 +397,17 @@ async function loadListings(){
   else if(sort==='price_desc')q=q.order('price',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false});
   else if(sort==='views_desc')q=q.order('views_count',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false});
   else q=q.order('created_at',{ascending:false});
-  const {data,error}=await q;
+  const {data,error,count}=await q;
   if(error){
     grid.innerHTML='<div class="empty">تعذر تحميل الإعلانات حاليًا. '+escapeHtml(error.message)+'</div>';
+    if(resultCount)resultCount.textContent='تعذر إتمام البحث الآن';
     return;
   }
   grid.innerHTML='';
+  const total=Number(count??data?.length??0);
+  if(resultCount)resultCount.textContent=total===0?'لم نعثر على إعلانات تطابق بحثك. جرّب تغيير كلمات البحث أو الفلاتر.':`تم العثور على ${total.toLocaleString('ar-EG')} إعلان${total>40?' — نعرض أول 40 نتيجة':''}`;
   if(!data?.length){
-    grid.innerHTML='<div class="empty">لا توجد إعلانات منشورة حاليًا. كن أول من يضيف إعلانًا!</div>';
+    grid.innerHTML='<div class="empty">لا توجد نتائج مطابقة. جرّب تغيير كلمات البحث أو مسح بعض الفلاتر.</div>';
     return;
   }
 
